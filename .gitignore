@@ -1,9 +1,15 @@
 checkpoints/
 datasets/
 
+<<<<<<< HEAD
 results/
 logs/
 save/
+=======
+results
+logs
+save
+>>>>>>> 1a33c3482c5f950df28ddf553b8ce0c229590450
 
 __pycache__/
 *.pyc
