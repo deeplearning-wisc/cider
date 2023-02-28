@@ -108,6 +108,7 @@ sh scripts/train_cider_imgnet100.sh
 
 
 
+
 ### Citation
 
 If you find our work useful, please consider citing our paper:
@@ -122,3 +123,6 @@ If you find our work useful, please consider citing our paper:
 }
 ```
 
+### Misc
+
+A cleanup of the codebase will be conducted soon, which involves removal of verbose pipelines and unused parts in the current version.
