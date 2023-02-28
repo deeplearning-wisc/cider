@@ -1,9 +1,9 @@
-./checkpoints
-./datasets
+checkpoints/
+datasets/
 
-./results
-./logs
-./save
+results/
+logs/
+save/
 
-__pycache__
+__pycache__/
 *.pyc
