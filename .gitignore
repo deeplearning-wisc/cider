@@ -1,5 +1,5 @@
-checkpoints/
-datasets/
+checkpoints
+datasets
 
 results/
 logs/
@@ -8,5 +8,3 @@ save/
 
 __pycache__/
 
-./checkpoints
-./datasets
