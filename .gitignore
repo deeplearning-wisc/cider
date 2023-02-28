@@ -5,6 +5,6 @@ results/
 logs/
 save/
 
-
+.DS_Store
 __pycache__/
 
