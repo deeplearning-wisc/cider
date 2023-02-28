@@ -7,4 +7,6 @@ save/
 
 
 __pycache__/
-*.pyc
+
+./checkpoints
+./datasets
