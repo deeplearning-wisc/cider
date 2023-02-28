@@ -14,6 +14,8 @@ Out-of-distribution (OOD) detection is a critical task for reliable machine lear
 
 ## Quick Start
 
+Remarks: This is the initial version of our codebase, and while the scripts are functional, there is much room for improvement in terms of streamlining the pipelines for better efficiency. Additionally, there are unused parts that we plan to remove in an upcoming cleanup soon. Stay tuned for more updates.
+
 ### Data Preparation
 
 The default root directory for ID and OOD datasets is `datasets/`. We consider the following (in-distribution) datasets: CIFAR-10, CIFAR-100, and ImageNet-100. 
@@ -123,6 +125,4 @@ If you find our work useful, please consider citing our paper:
 }
 ```
 
-### Misc
 
-This is the initial version of our codebase, and while the scripts are functional, there is much room for improvement in terms of streamlining the pipelines for better efficiency. Additionally, there are unused parts that we plan to remove in an upcoming cleanup soon. Stay tuned for more updates.
