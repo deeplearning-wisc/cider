@@ -7,6 +7,6 @@ python train_cider.py \
     --epochs 100 \
     --proto_m 0.95 \
     --feat_dim 128 \
-    --batch-size 2 \
+    --batch-size 512 \
     --w_dis 2 \
     --cosine

@@ -8,5 +8,5 @@ python train_cider.py \
     --proto_m 0.5 \
     --feat_dim 128 \
     --w_dis 2 \
-    --batch-size 2 \
+    --batch-size 512 \
     --cosine
