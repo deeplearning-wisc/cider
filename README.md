@@ -125,4 +125,4 @@ If you find our work useful, please consider citing our paper:
 
 ### Misc
 
-A cleanup of the codebase will be conducted soon, which involves removal of verbose pipelines and unused parts in the current version.
+This is the initial version of our codebase, and while the scripts are functional, there is much room for improvement in terms of streamlining the pipelines for better efficiency. Additionally, there are unused parts that we plan to remove in an upcoming cleanup soon. Stay tuned for more updates.
