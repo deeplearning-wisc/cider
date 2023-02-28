@@ -1,0 +1,11 @@
+python train_cider.py \
+    --in-dataset ImageNet-100\
+    --id_loc datasets/ImageNet100 \
+    --gpu 0 \
+    --model resnet34 \
+    --loss cider \
+    --epochs 20 \
+    --proto_m 0.95 \
+    --feat_dim 128 \
+    --w_dis 2 \
+    --cosine
