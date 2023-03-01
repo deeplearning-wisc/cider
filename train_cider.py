@@ -29,8 +29,6 @@ from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageN
 from tensorboard_logger import configure, log_value
 
 parser = argparse.ArgumentParser(description='Training with Cross Entropy Loss')
-# parser.add_argument('--gpus', default=[7], nargs='*', type=int,
-#                         help='List of GPU indices to use, e.g., --gpus 0 1 2 3')
 parser.add_argument('--gpu', default=3,  type=int, help='which GPU to use')
 parser.add_argument('--seed', default=4,  type=int, help='random seed')
 parser.add_argument('--w_dis', default= 2, type=float,
@@ -69,8 +67,6 @@ parser.add_argument('--print-freq', '-p', default=10, type=int,
 
 parser.add_argument('--cosine', action='store_false',
                         help='using cosine annealing')
-parser.add_argument('--syncBN', action='store_true',
-                        help='using synchronized batch normalization')
     # temperature
 parser.add_argument('--temp', type=float, default=0.1,
                         help='temperature for loss function')
@@ -78,8 +74,6 @@ parser.add_argument('--warm', action='store_false',
                         help='warm-up for large batch training')
 parser.add_argument('--normalize', action='store_true',
                         help='normalize feat embeddings')
-# parser.add_argument('--tensorboard',
-#                     help='Log progress to TensorBoard', action='store_false')
 parser.set_defaults(bottleneck=True)
 parser.set_defaults(augment=True)
 
@@ -100,7 +94,6 @@ elif args.loss == 'cider':
     args.name = f"{date_time}_cider_{args.model}_lr_{args.learning_rate}_cosine_{args.cosine}_bsz_{args.batch_size}_{args.loss}_wd_{args.w_dis}_{args.epochs}_{args.feat_dim}_trial_{args.trial}_temp_{args.temp}_{args.in_dataset}_pm_{args.proto_m}__feat_mormalize_{args.normalize}"
 
 args.log_directory = "logs/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name)
-# args.model_directory = "/nobackup/checkpoints_01/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
 args.model_directory = "checkpoints/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
 args.tb_path = './save/cider/{}_tensorboard'.format(args.in_dataset)
 if not os.path.exists(args.model_directory):
@@ -128,9 +121,6 @@ log.addHandler(streamHandler)
 
 log.debug(state)
 
-#setup GPU
-# args.gpus = list(map(lambda x: torch.device('cuda', x), args.gpus))
-# os.environ["CUDA_VISIBLE_DEVICES"] = args.gpu
 if args.in_dataset == "CIFAR-10":
     args.n_cls = 10
 elif args.in_dataset in ["CIFAR-100", "ImageNet-100"]:
