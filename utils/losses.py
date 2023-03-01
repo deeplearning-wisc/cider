@@ -209,7 +209,7 @@ class SupUniformLPLoss(nn.Module):
         self.model = model
         self.loader = loader
 
-        self.prototypes = torch.nn.Parameter(torch.randn(self.args.n_cls,self.args.feat_dim).cuda())
+        # self.prototypes = torch.nn.Parameter(torch.randn(self.args.n_cls,self.args.feat_dim).cuda())
         # nn.init.kaiming_normal_(self.prototypes, mode='fan_out')
         self.init_class_prototypes()
 
@@ -269,14 +269,12 @@ class SupUniformLPLoss(nn.Module):
     
     def init_class_prototypes(self):
         """Initialize class prototypes"""
-
-        # switch to evaluate mode
         self.model.eval()
         start = time.time()
         prototype_counts = [0]*self.args.n_cls
         with torch.no_grad():
             prototypes = torch.zeros(self.args.n_cls,self.args.feat_dim).cuda()
-            for i, (input, target) in enumerate(self.loader):
+            for input, target in self.loader:
                 input, target = input.cuda(), target.cuda()
                 features = self.model(input) # extract normalized features
                 for j, feature in enumerate(features):

@@ -1,7 +1,7 @@
 python train_cider.py \
     --in-dataset CIFAR-10 \
     --id_loc datasets/CIFAR10 \
-    --gpu 0 \
+    --gpu 1 \
     --model resnet18 \
     --loss cider \
     --epochs 500 \
