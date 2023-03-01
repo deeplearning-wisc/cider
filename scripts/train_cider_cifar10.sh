@@ -4,7 +4,7 @@ python train_cider.py \
     --gpu 0 \
     --model resnet18 \
     --loss cider \
-    --epochs 100 \
+    --epochs 500 \
     --proto_m 0.95 \
     --feat_dim 128 \
     --batch-size 512 \
