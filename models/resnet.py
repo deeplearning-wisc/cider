@@ -192,31 +192,6 @@ class LinearBatchNorm(nn.Module):
         x = x.view(-1, self.dim)
         return x
 
-
-# class SupConResNet(nn.Module):
-#     """backbone + projection head"""
-#     def __init__(self, name='resnet50', head='mlp', feat_dim=128):
-#         super(SupConResNet, self).__init__()
-#         model_fun, dim_in = model_dict[name]
-#         self.encoder = model_fun()
-#         if head == 'linear':
-#             self.head = nn.Linear(dim_in, feat_dim)
-#         elif head == 'mlp':
-#             self.head = nn.Sequential(
-#                 nn.Linear(dim_in, dim_in),
-#                 nn.ReLU(inplace=True),
-#                 nn.Linear(dim_in, feat_dim)
-#             )
-#         else:
-#             raise NotImplementedError(
-#                 'head not supported: {}'.format(head))
-
-#     def forward(self, x):
-#         feat = self.encoder(x)
-#         feat = F.normalize(self.head(feat), dim=1)
-#         return feat
-
-
 class SupCEResNet(nn.Module):
     """encoder + classifier"""
     def __init__(self, name='resnet18', normalize = False,  num_classes=10):
@@ -240,7 +215,6 @@ class SupCEHeadResNet(nn.Module):
         if args.in_dataset == 'ImageNet-100':
             model = models.resnet34(pretrained=True)
             for name, p in model.named_parameters():
-                # print(name, p.requires_grad)
                 if not name.startswith('layer4'):
                     p.requires_grad = False
             modules=list(model.children())[:-1] # remove last linear layer
@@ -258,11 +232,7 @@ class SupCEHeadResNet(nn.Module):
                 nn.ReLU(inplace=True),
                 nn.Linear(dim_in, args.feat_dim)
             )
-        
-
-    # def forward(self, x):
-    #     features = self.encoder(x)
-    #     return self.fc(features)
+    
     
     def forward(self, x):
         feat = self.encoder(x).squeeze()
@@ -273,7 +243,6 @@ class SupCEHeadResNet(nn.Module):
     def intermediate_forward(self, x, layer_index):
         feat = self.encoder(x).squeeze()
         if layer_index == 0:
-            # return self.encoder.intermediate_forward(x, layer_index)
             return F.normalize(feat, dim=1)
         elif layer_index == 1:
             feat = self.multiplier * F.normalize(self.head(feat), dim=1) 

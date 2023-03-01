@@ -1,6 +1,5 @@
 
 """
-V1: not considering self-supervised positive pairs
 Aapted from SupCLR: https://github.com/HobbitLong/SupContrast/
 """
 from __future__ import print_function
@@ -10,106 +9,6 @@ import torch.nn as nn
 import torch.nn.functional as F
 import time
 from copy import deepcopy
-
-
-class SupUniformLoss(nn.Module):
-    '''
-    Uniformity Loss or Dispersion Loss
-    '''
-    def __init__(self, args, model, loader, temperature= 0.1, base_temperature=0.1):
-        super(SupUniformLoss, self).__init__()
-        self.args = args
-        self.temperature = temperature
-        self.base_temperature = base_temperature
-        self.register_buffer("prototypes", torch.zeros(self.args.n_cls,self.args.feat_dim))
-        self.model = model
-        self.loader = loader
-
-        self.init_class_prototypes()
-
-
-    def forward(self, features, labels=None, mask=None):
-        """Compute loss for model. 
-        Args:
-            features: hidden vector of shape [bsz, ...].
-            labels: ground truth of shape [bsz].
-            mask: contrastive mask of shape [bsz, bsz], mask_{i,j}=1 if sample j
-                has the same class as sample i. Can be asymmetric.
-        Returns:
-            A loss scalar.
-        """
-        device = torch.device('cuda')
-        
-
-        if len(features.shape)  != 2:
-            raise ValueError('`features` needs to be [bsz, hidden_dim],'
-                             '2 dimensions are required')
-        prototypes = self.prototypes
-        for j in range(len(features)):
-            prototypes[labels[j].item()] = F.normalize(prototypes[labels[j].item()] *self.args.proto_m + features[j]*(1-self.args.proto_m), dim=0)
-        self.prototypes = prototypes.detach()
-        # prototype uniform loss
-
-        labels = torch.arange(0, self.args.n_cls).cuda()
-        batch_size = prototypes.shape[0]
-
-        if labels is not None:
-            labels = labels.contiguous().view(-1, 1)
-            if labels.shape[0] != batch_size:
-                raise ValueError('Num of labels does not match num of features')
-            mask = (1- torch.eq(labels, labels.T).float()).to(device)
-        elif mask is not None: # if mask is provided
-            mask = (1 - mask.float()).to(device)
-
-        anchor_count = 1
-        contrast_feature = prototypes
-        anchor_feature = prototypes
-        logits = torch.div(
-            torch.matmul(anchor_feature, contrast_feature.T),
-            self.temperature)
-
-        logits_mask = torch.scatter(
-            torch.ones_like(mask),
-            1,
-            torch.arange(batch_size * anchor_count).view(-1, 1).to(device),
-            0
-        )
-        mask = mask * logits_mask
-
-        mean_prob_neg = torch.log((mask * torch.exp(logits)).sum(1) / mask.sum(1))
-        mean_prob_neg = mean_prob_neg[~torch.isnan(mean_prob_neg)]
-
-        loss = self.temperature / self.base_temperature * mean_prob_neg.mean()
-
-        return loss
-    def init_class_prototypes(self):
-        """Initialize class prototypes"""
-
-        # switch to evaluate mode
-        self.model.eval()
-        start = time.time()
-        prototype_counts = [0]*self.args.n_cls
-        with torch.no_grad():
-            prototypes = torch.zeros(self.args.n_cls,self.args.feat_dim).cuda()
-            for i, (input, target) in enumerate(self.loader):
-
-                input, target = input.cuda(), target.cuda()
-                features = self.model(input)
-
-                for j, feature in enumerate(features):
-                    prototypes[target[j].item()] += feature
-                    prototype_counts[target[j].item()] += 1
-            for cls in range(self.args.n_cls):
-                prototypes[cls] /=  prototype_counts[cls] 
-          
-
-            # measure elapsed time
-            duration = time.time() - start
-            print(f'Time to initialize prototypes: {duration:.3f}')
-            prototypes = F.normalize(prototypes, dim=1)
-       
-            self.prototypes = prototypes
-
 
 def binarize(T, nb_classes):
     T = T.cpu().numpy()
@@ -298,7 +197,6 @@ class SupConProxyLoss(nn.Module):
         return loss
 
 
-
 class SupUniformLPLoss(nn.Module):
     '''
     Uniformity Loss or Dispersion Loss with learnable prototypes
@@ -313,7 +211,6 @@ class SupUniformLPLoss(nn.Module):
 
         self.prototypes = torch.nn.Parameter(torch.randn(self.args.n_cls,self.args.feat_dim).cuda())
         # nn.init.kaiming_normal_(self.prototypes, mode='fan_out')
-        # self.prototypes = self.prototypes.cuda()
         self.init_class_prototypes()
 
     def forward(self, features, labels=None, mask=None):
@@ -332,7 +229,6 @@ class SupUniformLPLoss(nn.Module):
         if len(features.shape)  != 2:
             raise ValueError('`features` needs to be [bsz, hidden_dim],'
                              '2 dimensions are required')
-        # for j, feature in enumerate(features):
         prototypes = F.normalize(self.prototypes, dim=1)
 
         labels = torch.arange(0, self.args.n_cls).cuda()
@@ -346,7 +242,6 @@ class SupUniformLPLoss(nn.Module):
         elif mask is not None: # if mask is provided
             mask = (1 - mask.float()).to(device)
 
-        # V1: simple setting where anchor_feature = contrast_feature = features 
         anchor_count = 1
         contrast_feature = prototypes
         anchor_feature = prototypes
@@ -368,7 +263,6 @@ class SupUniformLPLoss(nn.Module):
         mean_prob_neg = torch.log((mask * torch.exp(logits)).sum(1) / mask.sum(1))
         mean_prob_neg = mean_prob_neg[~torch.isnan(mean_prob_neg)]
         # loss
-        # V1.1
         loss = self.temperature / self.base_temperature * mean_prob_neg.mean()
 
         return loss
@@ -383,25 +277,15 @@ class SupUniformLPLoss(nn.Module):
         with torch.no_grad():
             prototypes = torch.zeros(self.args.n_cls,self.args.feat_dim).cuda()
             for i, (input, target) in enumerate(self.loader):
-                #repeat version for train loader
-                # input = torch.cat([input[0], input[1]], dim=0).cuda()
-                # target = target.repeat(2).cuda()
-                
-                # no repear version for val loader 
                 input, target = input.cuda(), target.cuda()
-                features = self.model(input)
-                # penultimate = self.model.encoder(input).squeeze()
-                # features= F.normalize(self.model.head(penultimate), dim=1)
+                features = self.model(input) # extract normalized features
                 for j, feature in enumerate(features):
                     prototypes[target[j].item()] += feature
                     prototype_counts[target[j].item()] += 1
             for cls in range(self.args.n_cls):
                 prototypes[cls] /=  prototype_counts[cls] 
-                # prototypes[target[j].item()] = prototypes[target[j].item()]*(count-1)/count + feature/count
-
             # measure elapsed time
             duration = time.time() - start
             print(f'Time to initialize prototypes: {duration:.3f}')
             prototypes = F.normalize(prototypes, dim=1)
-            # self.prototypes = torch.nn.Parameter(prototypes)
             self.prototypes = torch.nn.Parameter(prototypes)

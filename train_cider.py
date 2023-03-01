@@ -23,7 +23,7 @@ import torchvision.datasets as datasets
 # import torchvision
 import numpy as np
 
-from utils import SupUniformLoss, SupConProxyLoss, SupUniformLPLoss
+from utils import SupConProxyLoss, SupUniformLPLoss
 from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageNet, set_model, warmup_learning_rate, accuracy, AverageMeter
 # used for logging to TensorBoard
 from tensorboard_logger import configure, log_value
@@ -157,7 +157,6 @@ def main():
     model = set_model(args)
 
     criterion_supcon = SupConLoss(temperature=args.temp).cuda()
-    # criterion_uni = SupUniformLoss(args, model, val_loader, temperature=args.temp).cuda()
     criterion_uni = SupUniformLPLoss(args, model, val_loader, temperature=args.temp).cuda()
     criterion_dis = SupConProxyLoss(args, temperature=args.temp).cuda()
 
