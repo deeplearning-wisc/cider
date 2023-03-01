@@ -28,7 +28,7 @@ from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageN
 # used for logging to TensorBoard
 from tensorboard_logger import configure, log_value
 
-parser = argparse.ArgumentParser(description='Training with Cross Entropy Loss')
+parser = argparse.ArgumentParser(description='Training with CIDER and SupCon Loss')
 parser.add_argument('--gpu', default=3,  type=int, help='which GPU to use')
 parser.add_argument('--seed', default=4,  type=int, help='random seed')
 parser.add_argument('--w_dis', default= 2, type=float,
@@ -65,9 +65,8 @@ parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
 parser.add_argument('--print-freq', '-p', default=10, type=int,
                     help='print frequency (default: 10)')
 
-parser.add_argument('--cosine', action='store_false',
+parser.add_argument('--cosine', action='store_true',
                         help='using cosine annealing')
-    # temperature
 parser.add_argument('--temp', type=float, default=0.1,
                         help='temperature for loss function')
 parser.add_argument('--warm', action='store_false',
