@@ -143,7 +143,7 @@ def main():
     tb_log = tb_logger.Logger(logdir=args.tb_folder, flush_secs=2)
 
     if args.in_dataset == "ImageNet-100":
-        train_loader, val_loader =  set_loader_ImageNet(args)
+        train_loader, val_loader = set_loader_ImageNet(args)
     else:
         train_loader, val_loader = set_loader_small(args)
 
@@ -154,12 +154,20 @@ def main():
     # criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
     criterion_comp = CompLoss(args, temperature=args.temp).cuda()
 
+    # V1: learnable prototypes
     optimizer = torch.optim.SGD([ {"params": model.parameters()},
                                   {"params": criterion_dis.prototypes}  
                                 ], lr = args.learning_rate,
                                 momentum=args.momentum,
                                 nesterov=True,
                                 weight_decay=args.weight_decay)
+
+    # V2: EMA style prototypes
+    # optimizer = torch.optim.SGD(model.parameters(), lr = args.learning_rate,
+    #                             momentum=args.momentum,
+    #                             nesterov=True,
+    #                             weight_decay=args.weight_decay)
+
 
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(args, optimizer, epoch)
