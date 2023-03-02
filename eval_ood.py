@@ -11,7 +11,6 @@ import torch.nn.functional as F
 from models.resnet import *
 import seaborn as sns
 import matplotlib.pyplot as plt
-from train_ce import validate
 from utils import *
 import faiss
 from tqdm import tqdm
@@ -51,7 +50,6 @@ def process_args():
                         help='normalize feat embeddings')
     # parser.add_argument('--alpha_score', type=int, default=200)
     # parser.add_argument('--num_to_avg', type=int, default=1, help='Average measures across num_to_avg runs.')
-    parser.add_argument('--validate', '-v', action='store_true', help='Evaluate performance on validation distributions.')
     parser.add_argument('--use_xent', '-x', action='store_true', help='Use cross entropy scoring instead of the MSP.')
     # EG and benchmark details
     parser.add_argument('--out_as_pos', action='store_true', help='OE define OOD data as positive.')
@@ -205,10 +203,6 @@ def main(args):
     ood_num_examples = len(test_loader.dataset) 
     num_batches = ood_num_examples // args.batch_size
 
-    if args.loss == 'ce':
-        criterion = torch.nn.CrossEntropyLoss()
-        args.print_freq = 10
-        validate(test_loader, net, criterion, args)
     if args.score == "knn":
         ftrain, ftest = get_features(args, net, train_loader, test_loader)
         index = faiss.IndexFlatL2(ftrain.shape[1])

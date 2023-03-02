@@ -4,6 +4,7 @@ datasets
 results/
 logs/
 save/
+feat/
 
 .DS_Store
 __pycache__/

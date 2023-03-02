@@ -213,7 +213,6 @@ class DisLPLoss(nn.Module):
             torch.matmul(prototypes, prototypes.T),
             self.temperature)
 
-        # compute mean of log-likelihood over negatives
         mean_prob_neg = torch.log((mask * torch.exp(logits)).sum(1) / mask.sum(1))
         mean_prob_neg = mean_prob_neg[~torch.isnan(mean_prob_neg)]
         # loss

@@ -19,11 +19,11 @@ from utils import (CompLoss, DisLoss, DisLPLoss, SupConLoss,
                 set_loader_small, set_loader_ImageNet, set_model)
 
 parser = argparse.ArgumentParser(description='Training with CIDER and SupCon Loss')
-parser.add_argument('--gpu', default=5, type=int, help='which GPU to use')
+parser.add_argument('--gpu', default=6, type=int, help='which GPU to use')
 parser.add_argument('--seed', default=4, type=int, help='random seed')
 parser.add_argument('--w', default=2, type=float,
                     help='loss scale')
-parser.add_argument('--proto_m', default= 0.99, type=float,
+parser.add_argument('--proto_m', default= 0.95, type=float,
                    help='weight of prototype update')
 parser.add_argument('--feat_dim', default = 128, type=int,
                     help='feature dim')
