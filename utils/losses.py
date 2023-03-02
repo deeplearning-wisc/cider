@@ -150,12 +150,12 @@ class SupConLoss(nn.Module):
 
         return loss
 
-class DispersionLoss(nn.Module):
+class CompLoss(nn.Module):
     '''
-    Dispersion Loss with learnable prototypes
+    Compactness Loss with class-conditional prototypes
     '''
     def __init__(self, args, temperature=0.07, base_temperature=0.07):
-        super(DispersionLoss, self).__init__()
+        super(CompLoss, self).__init__()
         self.args = args
         self.temperature = temperature
         self.base_temperature = base_temperature
@@ -163,22 +163,16 @@ class DispersionLoss(nn.Module):
     def forward(self, features, prototypes, labels):
         prototypes = F.normalize(prototypes, dim=1) 
         proxy_labels = torch.arange(0, self.args.n_cls).cuda()
-        batch_size = features.shape[0]
         labels = labels.contiguous().view(-1, 1)
-        if labels.shape[0] != batch_size:
-            raise ValueError('Num of labels does not match num of features')
-        mask = torch.eq(labels, proxy_labels.T).float().cuda()
-
-        anchor_feature = features
-        contrast_feature = prototypes
+        mask = torch.eq(labels, proxy_labels.T).float().cuda() #bz, cls
 
         # compute logits
-        anchor_dot_contrast = torch.div(
-            torch.matmul(anchor_feature, contrast_feature.T),
+        feat_dot_prototype = torch.div(
+            torch.matmul(features, prototypes.T),
             self.temperature)
         # for numerical stability
-        logits_max, _ = torch.max(anchor_dot_contrast, dim=1, keepdim=True)
-        logits = anchor_dot_contrast - logits_max.detach()
+        logits_max, _ = torch.max(feat_dot_prototype, dim=1, keepdim=True)
+        logits = feat_dot_prototype - logits_max.detach()
 
         # compute log_prob
         # exp_logits = torch.exp(logits) * logits_mask
@@ -190,16 +184,15 @@ class DispersionLoss(nn.Module):
 
         # loss
         loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos.mean()
-
         return loss
 
 
-class CompactnessLoss(nn.Module):
+class DisLoss(nn.Module):
     '''
-    CompactnessLoss with learnable prototypes
+    Dispersion Loss with class-conditional prototypes
     '''
     def __init__(self, args, model, loader, temperature= 0.1, base_temperature=0.1):
-        super(CompactnessLoss, self).__init__()
+        super(DisLoss, self).__init__()
         self.args = args
         self.temperature = temperature
         self.base_temperature = base_temperature
@@ -207,50 +200,19 @@ class CompactnessLoss(nn.Module):
         self.loader = loader
         self.init_class_prototypes()
 
-    def forward(self, features, labels=None, mask=None):
-        """Compute loss for model. 
-        Args:
-            features: hidden vector of shape [bsz, ...].
-            labels: ground truth of shape [bsz].
-            mask: contrastive mask of shape [bsz, bsz], mask_{i,j}=1 if sample j
-                has the same class as sample i. Can be asymmetric.
-        Returns:
-            A loss scalar.
-        """
-        
+    def compute(self):
+        num_cls = self.args.n_cls
+        # l2-normalize the prototypes if not normalized
+        prototypes = F.normalize(self.prototypes, dim=1) 
 
-        if len(features.shape)  != 2:
-            raise ValueError('`features` needs to be [bsz, hidden_dim],'
-                             '2 dimensions are required')
-        prototypes = F.normalize(self.prototypes, dim=1)
+        labels = torch.arange(0, num_cls).cuda()
+        labels = labels.contiguous().view(-1, 1)
 
-        labels = torch.arange(0, self.args.n_cls).cuda()
-        batch_size = prototypes.shape[0]
+        mask = (1- torch.eq(labels, labels.T).float()).cuda()
 
-        if labels is not None:
-            labels = labels.contiguous().view(-1, 1)
-            if labels.shape[0] != batch_size:
-                raise ValueError('Num of labels does not match num of features')
-            mask = (1- torch.eq(labels, labels.T).float()).cuda()
-        elif mask is not None: # if mask is provided
-            mask = (1 - mask.float()).cuda()
-
-        anchor_count = 1
-        contrast_feature = prototypes
-        anchor_feature = prototypes
-
-        # compute logits
         logits = torch.div(
-            torch.matmul(anchor_feature, contrast_feature.T),
+            torch.matmul(prototypes, prototypes.T),
             self.temperature)
-
-        logits_mask = torch.scatter(
-            torch.ones_like(mask),
-            1,
-            torch.arange(batch_size * anchor_count).view(-1, 1).cuda(),
-            0
-        )
-        mask = mask * logits_mask
 
         # compute mean of log-likelihood over negatives
         mean_prob_neg = torch.log((mask * torch.exp(logits)).sum(1) / mask.sum(1))
