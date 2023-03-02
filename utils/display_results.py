@@ -96,7 +96,6 @@ def show_performance(pos, neg, method_name='Ours', recall_level=recall_level_def
     print('FPR{:d}:\t\t\t{:.2f}'.format(int(100 * recall_level), 100 * fpr))
     print('AUROC:\t\t\t{:.2f}'.format(100 * auroc))
     print('AUPR:\t\t\t{:.2f}'.format(100 * aupr))
-    # print('FDR{:d}:\t\t\t{:.2f}'.format(int(100 * recall_level), 100 * fdr))
 
 def print_measures(log, auroc, aupr, fpr, method_name='Ours', recall_level=recall_level_default):
     if log == None: 
@@ -121,13 +120,9 @@ def print_measures_with_std(log, aurocs, auprs, fprs, method_name='Ours', recall
         print('AUPR:  \t\t\t{:.2f}\t+/- {:.2f}'.format(100 * np.mean(auprs), 100 * np.std(auprs)))
 
 def plot_distribution(args, id_scores, ood_scores, out_dataset):
-    # args.score = 'CLS'
     sns.set(style="white", palette="muted")
     palette = ['#A8BAE3', '#55AB83']
     sns.displot({"ID": -1 * id_scores, "OOD":  -1 * ood_scores}, label="id", kind = "kde", palette=palette, fill = True, alpha = 0.8)
-    # plt.title(f"ID v.s. {out_dataset} {args.score} score")
-    # plt.ylim(0, 0.3)
-    # plt.xlim(-10, 50)
     plt.savefig(os.path.join(args.log_directory,f"KNN_{out_dataset}.png"), bbox_inches='tight')
 
 def save_as_dataframe(args, out_datasets, fpr_list, auroc_list, aupr_list):
@@ -160,5 +155,3 @@ def show_performance_comparison(pos_base, neg_base, pos_ours, neg_ours, baseline
         100 * auroc_base, 100 * auroc_ours))
     print('AUPR:\t\t\t{:.2f}\t\t{:.2f}'.format(
         100 * aupr_base, 100 * aupr_ours))
-    # print('FDR{:d}:\t\t\t{:.2f}\t\t{:.2f}'.format(
-    #     int(100 * recall_level), 100 * fdr_base, 100 * fdr_ours))
