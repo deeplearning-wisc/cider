@@ -89,7 +89,7 @@ sh scripts/eval_ckpt_cifar100.sh ckpt_c100 # for CIFAR-100
 
 **Evaluate custom checkpoints** 
 
-The default directory to save checkpoints is `checkpoints`. Otherwise, create a softlink to the directory where the actual checkpoints are saved and name it as `checkpoints`). For example, checkpoints for CIFAR-100 (ID) are accessible in the `checkpoints` directory with the following structure: 
+If the default directory to save checkpoints is not `checkpoints`, create a softlink to the directory where the actual checkpoints are saved and name it as `checkpoints`. For example, checkpoints for CIFAR-100 (ID) are structured as follows: 
 
 ```python
 checkpoints/
