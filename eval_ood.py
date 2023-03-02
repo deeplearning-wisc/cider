@@ -27,10 +27,9 @@ def process_args():
     parser.add_argument('-b', '--batch-size', default=512, type=int, help='mini-batch size')
     parser.add_argument('--epoch', default ="500", type=str, help='which epoch to test')
     parser.add_argument('--gpu', default=0,  type=int, help='which GPU to use')
-    # parser.add_argument('--gpus', default=[7], nargs='*', type=int, help='List of GPU indices to use, e.g., --gpus 0 1 2 3')
     parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider', 'ce'],
                     help='loss of experiment')
-    parser.add_argument('--name', type=str, default = '10_11_02:38_cider_resnet18_lr_0.5_cosine_False_bsz_512_cider_wd_2_500_128_trial_0_temp_0.1_CIFAR-10_pm_0.99__feat_mormalize_False')
+    parser.add_argument('--name', type=str, default = 'ckpt_c10')
     parser.add_argument('--server', default='inst', type=str, help='which server the exp runs on') # will be optimized later
     parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='location of in-distribution dataset')
     parser.add_argument('--ood_loc', default="datasets/small_OOD_dataset", type=str, help='location of ood datasets')
@@ -38,7 +37,6 @@ def process_args():
     parser.add_argument('--score', default='knn', type=str, help='score options: knn|maha|msp|odin|energy')
     parser.add_argument('--K', default=20, type=int, help='K in KNN score')
     parser.add_argument('--subset', default=False, type=bool, help='whether to use subset for KNN')
-
     # parser.add_argument('--norm_pe', type = bool, default = True, help='if normalize penultimate layer')
     parser.add_argument('--multiplier', default=1, type=float,
                      help='norm multipler to help solve numerical issues with precision matrix')
@@ -48,19 +46,13 @@ def process_args():
     parser.add_argument('--layer_idx', default=0, type=int, help='whether to use penultimate layer or proj head')
     parser.add_argument('--normalize', action='store_true',
                         help='normalize feat embeddings')
-    # parser.add_argument('--alpha_score', type=int, default=200)
-    # parser.add_argument('--num_to_avg', type=int, default=1, help='Average measures across num_to_avg runs.')
-    parser.add_argument('--use_xent', '-x', action='store_true', help='Use cross entropy scoring instead of the MSP.')
-    # EG and benchmark details
-    parser.add_argument('--out_as_pos', action='store_true', help='OE define OOD data as positive.')
+    parser.add_argument('--out_as_pos', action='store_true', help='if OOD data defined as positive class.')
     parser.add_argument('--T', default=1000, type=float, help='temperature: energy|Odin')
-    # parser.add_argument('--noise', type=float, default=0, help='noise for Odin')
     args = parser.parse_args()
     print(args)
 
 
     args.ckpt = f"checkpoints/{args.in_dataset}/{args.name}/checkpoint_{args.epoch}.pth.tar"
-    # args.ckpt = f"save/CE/cifar10_models/{args.name}/ckpt_epoch_{args.epoch}.pth"
     
 
     if args.in_dataset == "CIFAR-10":
