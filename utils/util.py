@@ -209,13 +209,9 @@ def set_model(args):
     # get the number of model parameters
     print('Number of model parameters: {}'.format(
         sum([p.data.nelement() for p in model.parameters()])))
-
-    torch.cuda.set_device(args.gpu) # sets the default GPU and in order to use multi-GPU
+    torch.cuda.set_device(args.gpu) 
     torch.backends.cudnn.deterministic = True
     torch.backends.cudnn.benchmark = True
-    # if len(args.gpus)> 1:
-    #     model = nn.DataParallel(model.to(args.gpus[0]), args.gpus)
-    # else:
     model = model.cuda()
 
     return model
