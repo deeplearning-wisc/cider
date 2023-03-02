@@ -4,7 +4,7 @@ import math
 import os
 
 from torch import nn
-from models.resnet import SupCEHeadResNet, SupCEResNet
+from models.resnet import SupCEHeadResNet
 import numpy as np
 import torch
 import torch.optim as optim
@@ -69,18 +69,6 @@ def adjust_learning_rate(args, optimizer, epoch):
 
     for param_group in optimizer.param_groups:
         param_group['lr'] = lr
-
-# def adjust_learning_rate_simple(args, optimizer, epoch):
-#     """Sets the learning rate to the initial LR decayed by 10 after 40 and 80 epochs"""
-#     lr = args.learning_rate
-#     if epoch >= lr_schedule[0]:
-#         lr *= 0.1
-#     if epoch >= lr_schedule[1]:
-#         lr *= 0.1
-#     if epoch >= lr_schedule[2]:
-#         lr *= 0.1
-#     for param_group in optimizer.param_groups:
-#         param_group['lr'] = lr
 
 def warmup_learning_rate(args, epoch, batch_id, total_batches, optimizer):
     if args.warm and epoch <= args.warm_epochs:

@@ -53,12 +53,6 @@ parser.add_argument('-b', '--batch-size', default= 512, type=int,
                     help='mini-batch size (default: 64)')
 parser.add_argument('--learning_rate', default=0.5, type=float,
                     help='initial learning rate')
-# if linear lr schedule
-parser.add_argument('--lr_decay_epochs', type=str, default='100,150,180',
-                        help='where to decay lr, can be a list')
-parser.add_argument('--lr_decay_rate', type=float, default=0.1,
-                        help='decay rate for learning rate')
-# if cosine lr schedule
 parser.add_argument('--cosine', action='store_true',
                         help='using cosine annealing')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
@@ -171,7 +165,6 @@ def main():
 
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(args, optimizer, epoch)
-       #  adjust_learning_rate(optimizer, epoch, lr_schedule)
         # train for one epoch
         train_sloss, train_uloss, train_dloss = train_cider(args, train_loader, model, criterion_supcon, criterion_uni, criterion_dis, optimizer, epoch, log)
         if args.loss == 'supcon':
