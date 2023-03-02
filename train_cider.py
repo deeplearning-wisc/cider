@@ -235,10 +235,6 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_uni, crit
             loss = args.w_dis*dis_loss + uni_loss
             dis_losses.update(dis_loss.data, input.size(0))
             uni_losses.update(uni_loss.data, input.size(0))
-            # if i % args.print_freq == 0: 
-            #     print(criterion_uni.prototypes)
-        # original uni loss
-        # uni_loss = criterion_uni(features[:bsz], target)
         else:
             f1, f2 = torch.split(features, [bsz, bsz], dim=0) #f1 shape: [bz, 128]
             features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1) #features shape: [bz, 2, 128]

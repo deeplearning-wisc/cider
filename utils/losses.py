@@ -158,7 +158,7 @@ class SupConProxyLoss(nn.Module):
         self.base_temperature = base_temperature
 
     def forward(self, features, prototypes, labels):
-        prototypes = F.normalize(prototypes, dim=1) # TEMP
+        prototypes = F.normalize(prototypes, dim=1) 
         device = (torch.device('cuda')
                   if features.is_cuda
                   else torch.device('cpu'))
@@ -169,10 +169,8 @@ class SupConProxyLoss(nn.Module):
             raise ValueError('Num of labels does not match num of features')
         mask = torch.eq(labels, proxy_labels.T).float().to(device)
 
-        
         anchor_feature = features
         contrast_feature = prototypes
-        # anchor_count = 1
 
         # compute logits
         anchor_dot_contrast = torch.div(
@@ -192,7 +190,6 @@ class SupConProxyLoss(nn.Module):
 
         # loss
         loss = - (self.temperature / self.base_temperature) * mean_log_prob_pos.mean()
-        # loss = loss.view(anchor_count, batch_size).mean()
 
         return loss
 
