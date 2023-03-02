@@ -105,9 +105,7 @@ def set_loader_small(args, eval = False, batch_size = None, img_size = 32):
         batch_size = args.batch_size
     normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
                                          std=[x/255.0 for x in [63.0, 62.1, 66.7]])
-    # normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)) #for c-10 trained with ce
-    # normalize = transforms.Normalize((0.5071, 0.4867, 0.4408), (0.2675, 0.2565, 0.2761)) #for c-100
-
+    # data augmentations for supcon                                     
     train_transform_supcon = transforms.Compose([
         transforms.RandomResizedCrop(size=img_size, scale=(0.2, 1.)),
         transforms.RandomHorizontalFlip(),
@@ -130,7 +128,7 @@ def set_loader_small(args, eval = False, batch_size = None, img_size = 32):
         if eval: 
             dataset = datasets.CIFAR10(root, train=True, download=True, transform=transform_test)
             if args.subset: 
-                dataset = torch.utils.data.Subset(dataset , np.random.choice(len(dataset ), 20000, replace=False))
+                dataset = torch.utils.data.Subset(dataset , np.random.choice(len(dataset), 20000, replace=False))
             train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, **kwargs)
         else:
             train_loader = torch.utils.data.DataLoader(
@@ -145,7 +143,7 @@ def set_loader_small(args, eval = False, batch_size = None, img_size = 32):
         if eval: 
             dataset = datasets.CIFAR100(root, train=True, download=True, transform=transform_test)
             if args.subset: 
-                dataset = torch.utils.data.Subset(dataset , np.random.choice(len(dataset ), 20000, replace=False))
+                dataset = torch.utils.data.Subset(dataset , np.random.choice(len(dataset), 20000, replace=False))
             train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, **kwargs)
         else:
             train_loader = torch.utils.data.DataLoader(
@@ -190,7 +188,7 @@ def set_loader_ImageNet(args, eval = False, batch_size = None):
     if eval: 
         dataset = datasets.ImageFolder(os.path.join(root, 'train'), transform=transform_test)
         if args.subset: 
-            dataset = torch.utils.data.Subset(dataset , np.random.choice(len(dataset ), 20000, replace=False))
+            dataset = torch.utils.data.Subset(dataset , np.random.choice(len(dataset), 20000, replace=False))
         train_loader = torch.utils.data.DataLoader(dataset, batch_size=batch_size, shuffle=False, **kwargs)
     else:
         dataset = datasets.ImageFolder(os.path.join(root, 'train'),
@@ -207,17 +205,7 @@ def set_loader_ImageNet(args, eval = False, batch_size = None):
 def set_model(args):
     
     # create model
-    # model = SupCEResNet(name=args.model)
-    if args.loss == 'ce':
-        model = SupCEResNet(name=args.model, normalize = args.normalize, num_classes=args.n_cls)
-    else:
-        model = SupCEHeadResNet(args)
-    # elif args.model in ['wrt28','wrt40']:
-    #     model = SupCEHeadWideResNet(args.layers, args.n_cls, args.widen_factor, dropRate=args.droprate, feat_dim = args.feat_dim)
-
-    # elif args.model == 'densenet100':
-    #     model = SupCEHeadDenseNet(name=args.model, feat_dim = args.feat_dim, num_classes = args.n_cls)
-
+    model = SupCEHeadResNet(args)
     # get the number of model parameters
     print('Number of model parameters: {}'.format(
         sum([p.data.nelement() for p in model.parameters()])))

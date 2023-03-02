@@ -121,16 +121,6 @@ class ResNet(nn.Module):
     # function to extact a specific feature
     def intermediate_forward(self, x, layer_index):
         out = F.relu(self.bn1(self.conv1(x)))
-        # if layer_index == 1:
-        #     out = self.layer1(out)
-        # elif layer_index == 2:
-        #     out = self.layer1(out)
-        #     out = self.layer2(out)
-        # elif layer_index == 3:
-        #     out = self.layer1(out)
-        #     out = self.layer2(out)
-        #     out = self.layer3(out)
-        # elif layer_index == 4:
         out = self.layer1(out)
         out = self.layer2(out)
         out = self.layer3(out)
@@ -141,17 +131,11 @@ class ResNet(nn.Module):
     def feature_list(self, x):
         out_list = []
         out = F.relu(self.bn1(self.conv1(x)))
-        # out_list.append(out)
         out = self.layer1(out)
-        # out_list.append(out)
         out = self.layer2(out)
-        # out_list.append(out)
         out = self.layer3(out)
-        # out_list.append(out)
         out = self.layer4(out)
         out_list.append(out)
-        # out = self.avgpool(out)
-        # out = torch.flatten(out, 1)
         return out_list
 
 
@@ -208,7 +192,7 @@ class SupCEResNet(nn.Module):
         return self.fc(features)
 
 class SupCEHeadResNet(nn.Module):
-    """encoder + classifier"""
+    """encoder + head"""
     def __init__(self, args, multiplier = 1):
         super(SupCEHeadResNet, self).__init__()
         model_fun, dim_in = model_dict[args.model]
@@ -247,17 +231,3 @@ class SupCEHeadResNet(nn.Module):
         elif layer_index == 1:
             feat = self.multiplier * F.normalize(self.head(feat), dim=1) 
             return feat
-
-
-class LinearClassifier(nn.Module):
-    """Linear classifier"""
-    def __init__(self, name='resnet18',  normalize = False, num_classes=100):
-        super(LinearClassifier, self).__init__()
-        _, feat_dim = model_dict[name]
-        self.fc = nn.Linear(feat_dim, num_classes)
-        self.normalize = normalize
-
-    def forward(self, features):
-        if self.normalize: 
-            features =  F.normalize(features, dim=1)
-        return self.fc(features)

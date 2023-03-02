@@ -27,17 +27,17 @@ from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageN
 from tensorboard_logger import configure, log_value
 
 parser = argparse.ArgumentParser(description='Training with CIDER and SupCon Loss')
-parser.add_argument('--gpu', default=3,  type=int, help='which GPU to use')
-parser.add_argument('--seed', default=4,  type=int, help='random seed')
-parser.add_argument('--w_dis', default= 2, type=float,
+parser.add_argument('--gpu', default=3, type=int, help='which GPU to use')
+parser.add_argument('--seed', default=4, type=int, help='random seed')
+parser.add_argument('--w_dis', default=2, type=float,
                     help='L uniform weight')
 parser.add_argument('--proto_m', default= 0.99, type=float,
                    help='weight of prototype update')
 parser.add_argument('--feat_dim', default = 128, type=int,
                     help='feature dim')
-parser.add_argument('--in-dataset', default="CIFAR-100", type=str, help='in-distribution dataset')
-parser.add_argument('--id_loc', default="datasets/CIFAR100", type=str, help='location of in-distribution dataset')
-parser.add_argument('--model', default='resnet34', type=str, help='model architecture: [resnet18, wrt40, wrt28, densenet100]')
+parser.add_argument('--in-dataset', default="CIFAR-10", type=str, help='in-distribution dataset')
+parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='location of in-distribution dataset')
+parser.add_argument('--model', default='resnet18', type=str, help='model architecture: [resnet18, wrt40, wrt28, densenet100]')
 parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
 parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider'],
                     help='name of experiment')
@@ -53,21 +53,22 @@ parser.add_argument('-b', '--batch-size', default= 512, type=int,
                     help='mini-batch size (default: 64)')
 parser.add_argument('--learning_rate', default=0.5, type=float,
                     help='initial learning rate')
+# if linear lr schedule
 parser.add_argument('--lr_decay_epochs', type=str, default='100,150,180',
                         help='where to decay lr, can be a list')
 parser.add_argument('--lr_decay_rate', type=float, default=0.1,
                         help='decay rate for learning rate')
+# if cosine lr schedule
+parser.add_argument('--cosine', action='store_true',
+                        help='using cosine annealing')
 parser.add_argument('--momentum', default=0.9, type=float, help='momentum')
 parser.add_argument('--weight-decay', '--wd', default=1e-4, type=float,
                     help='weight decay (default: 0.0001)')
 parser.add_argument('--print-freq', '-p', default=10, type=int,
                     help='print frequency (default: 10)')
-
-parser.add_argument('--cosine', action='store_true',
-                        help='using cosine annealing')
 parser.add_argument('--temp', type=float, default=0.1,
                         help='temperature for loss function')
-parser.add_argument('--warm', action='store_false',
+parser.add_argument('--warm', action='store_true',
                         help='warm-up for large batch training')
 parser.add_argument('--normalize', action='store_true',
                         help='normalize feat embeddings')
