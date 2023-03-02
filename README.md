@@ -20,27 +20,6 @@ Remarks: This is the initial version of our codebase, and while the scripts are 
 
 The default root directory for ID and OOD datasets is `datasets/`. We consider the following (in-distribution) datasets: CIFAR-10, CIFAR-100, and ImageNet-100. 
 
-**Large-scale OOD datasets** For large-scale ID (e.g. ImageNet-100), we use the curated 4 OOD datasets from [iNaturalist](https://arxiv.org/pdf/1707.06642.pdf), [SUN](https://vision.princeton.edu/projects/2010/SUN/paper.pdf), [Places](http://places2.csail.mit.edu/PAMI_places.pdf), and [Textures](https://arxiv.org/pdf/1311.3618.pdf), and de-duplicated concepts overlapped with ImageNet-1k. The datasets are created by  [Huang et al., 2021](https://github.com/deeplearning-wisc/large_scale_ood) .
-
-The subsampled iNaturalist, SUN, and Places can be download via the following links:
-
-```
-wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/iNaturalist.tar.gz
-wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/SUN.tar.gz
-wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/Places.tar.gz
-
-```
-The directory structure looks like:
-```python
-datasets/
----ImageNet100/
----ImageNet_OOD_dataset/
-------dtd/
-------iNaturalist/
-------Places/
-------SUN/
-```
-
 **Small-scale OOD datasets** For small-scale ID (e.g. CIFAR-10), we use SVHN, Textures (dtd), Places365, LSUN-C (LSUN), LSUN-R (LSUN_resize), and iSUN. 
 
 OOD datasets can be downloaded via the following links (source: [ATOM](https://github.com/jfc43/informative-outlier-mining/blob/master/README.md)):
@@ -74,6 +53,27 @@ datasets/
 ------SVHN/
 ```
 
+
+**Large-scale OOD datasets** For large-scale ID (e.g. ImageNet-100), we use the curated 4 OOD datasets from [iNaturalist](https://arxiv.org/pdf/1707.06642.pdf), [SUN](https://vision.princeton.edu/projects/2010/SUN/paper.pdf), [Places](http://places2.csail.mit.edu/PAMI_places.pdf), and [Textures](https://arxiv.org/pdf/1311.3618.pdf), and de-duplicated concepts overlapped with ImageNet-1k. The datasets are created by  [Huang et al., 2021](https://github.com/deeplearning-wisc/large_scale_ood) .
+
+The subsampled iNaturalist, SUN, and Places can be download via the following links:
+
+```
+wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/iNaturalist.tar.gz
+wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/SUN.tar.gz
+wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/Places.tar.gz
+
+```
+The directory structure looks like:
+```python
+datasets/
+---ImageNet100/
+---ImageNet_OOD_dataset/
+------dtd/
+------iNaturalist/
+------Places/
+------SUN/
+```
 
 
 ## Training and Evaluation 
@@ -124,7 +124,12 @@ We provide sample scripts to train from scratch. Feel free to modify the hyperpa
 ```
 sh scripts/train_cider_cifar10.sh
 sh scripts/train_cider_cifar100.sh
-sh scripts/train_cider_imgnet100.sh
+```
+
+We also provide fine-tuning scripts on large-scale datasets such as ImageNet-100.
+
+```
+sh scripts/train_cider_imgnet100.sh  # use with caution. To be updated
 ```
 
 
