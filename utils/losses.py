@@ -162,15 +162,12 @@ class DispersionLoss(nn.Module):
 
     def forward(self, features, prototypes, labels):
         prototypes = F.normalize(prototypes, dim=1) 
-        device = (torch.device('cuda')
-                  if features.is_cuda
-                  else torch.device('cpu'))
-        proxy_labels = torch.arange(0, self.args.n_cls).to(device)
+        proxy_labels = torch.arange(0, self.args.n_cls).cuda()
         batch_size = features.shape[0]
         labels = labels.contiguous().view(-1, 1)
         if labels.shape[0] != batch_size:
             raise ValueError('Num of labels does not match num of features')
-        mask = torch.eq(labels, proxy_labels.T).float().to(device)
+        mask = torch.eq(labels, proxy_labels.T).float().cuda()
 
         anchor_feature = features
         contrast_feature = prototypes
@@ -220,7 +217,6 @@ class CompactnessLoss(nn.Module):
         Returns:
             A loss scalar.
         """
-        device = torch.device('cuda')
         
 
         if len(features.shape)  != 2:
@@ -235,9 +231,9 @@ class CompactnessLoss(nn.Module):
             labels = labels.contiguous().view(-1, 1)
             if labels.shape[0] != batch_size:
                 raise ValueError('Num of labels does not match num of features')
-            mask = (1- torch.eq(labels, labels.T).float()).to(device)
+            mask = (1- torch.eq(labels, labels.T).float()).cuda()
         elif mask is not None: # if mask is provided
-            mask = (1 - mask.float()).to(device)
+            mask = (1 - mask.float()).cuda()
 
         anchor_count = 1
         contrast_feature = prototypes
@@ -251,7 +247,7 @@ class CompactnessLoss(nn.Module):
         logits_mask = torch.scatter(
             torch.ones_like(mask),
             1,
-            torch.arange(batch_size * anchor_count).view(-1, 1).to(device),
+            torch.arange(batch_size * anchor_count).view(-1, 1).cuda(),
             0
         )
         mask = mask * logits_mask
