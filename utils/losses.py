@@ -255,7 +255,7 @@ class DisLoss(nn.Module):
         self.loader = loader
         self.init_class_prototypes()
 
-    def forward(self, features):    
+    def forward(self, features, labels):    
 
         prototypes = self.prototypes
         num_cls = self.args.n_cls

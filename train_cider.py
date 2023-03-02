@@ -19,11 +19,11 @@ from utils import (CompLoss, DisLoss, DisLPLoss, SupConLoss,
                 set_loader_small, set_loader_ImageNet, set_model)
 
 parser = argparse.ArgumentParser(description='Training with CIDER and SupCon Loss')
-parser.add_argument('--gpu', default=6, type=int, help='which GPU to use')
+parser.add_argument('--gpu', default=7, type=int, help='which GPU to use')
 parser.add_argument('--seed', default=4, type=int, help='random seed')
 parser.add_argument('--w', default=2, type=float,
                     help='loss scale')
-parser.add_argument('--proto_m', default= 0.95, type=float,
+parser.add_argument('--proto_m', default= 0.99, type=float,
                    help='weight of prototype update')
 parser.add_argument('--feat_dim', default = 128, type=int,
                     help='feature dim')
@@ -150,23 +150,22 @@ def main():
     model = set_model(args)
 
     criterion_supcon = SupConLoss(temperature=args.temp).cuda()
-    criterion_dis = DisLPLoss(args, model, val_loader, temperature=args.temp).cuda() # V1: learnable prototypes
-    # criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
     criterion_comp = CompLoss(args, temperature=args.temp).cuda()
-
     # V1: learnable prototypes
-    optimizer = torch.optim.SGD([ {"params": model.parameters()},
-                                  {"params": criterion_dis.prototypes}  
-                                ], lr = args.learning_rate,
-                                momentum=args.momentum,
-                                nesterov=True,
-                                weight_decay=args.weight_decay)
-
-    # V2: EMA style prototypes
-    # optimizer = torch.optim.SGD(model.parameters(), lr = args.learning_rate,
+    # criterion_dis = DisLPLoss(args, model, val_loader, temperature=args.temp).cuda() # V1: learnable prototypes
+    # optimizer = torch.optim.SGD([ {"params": model.parameters()},
+    #                               {"params": criterion_dis.prototypes}  
+    #                             ], lr = args.learning_rate,
     #                             momentum=args.momentum,
     #                             nesterov=True,
     #                             weight_decay=args.weight_decay)
+
+    # V2: EMA style prototypes
+    criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
+    optimizer = torch.optim.SGD(model.parameters(), lr = args.learning_rate,
+                                momentum=args.momentum,
+                                nesterov=True,
+                                weight_decay=args.weight_decay)
 
 
     for epoch in range(args.start_epoch, args.epochs):
@@ -220,8 +219,8 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_comp, cri
         features= model.head(penultimate)
         features= F.normalize(features, dim=1)
         if args.loss == 'cider':
-            dis_loss = criterion_dis.compute() # V1: learnable prototypes
-            # dis_loss = criterion_dis(features) # V2: EMA style
+            # dis_loss = criterion_dis.compute() # V1: learnable prototypes
+            dis_loss = criterion_dis(features, target) # V2: EMA style
             comp_loss = criterion_comp(features, criterion_dis.prototypes, target)
             loss = args.w * comp_loss + dis_loss
             dis_losses.update(dis_loss.data, input.size(0))
