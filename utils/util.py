@@ -203,30 +203,6 @@ def set_model(args):
     model = model.cuda()
 
     return model
-    
-def save_model(model, optimizer, opt, epoch, save_file):
-    print('==> Saving...')
-    state = {
-        'opt': opt,
-        'model': model.state_dict(),
-        'optimizer': optimizer.state_dict(),
-        'epoch': epoch,
-    }
-    torch.save(state, save_file)
-    del state
-
-def save_model_clf(model, classifier, optimizer, opt, epoch, save_file):
-    print('==> Saving...')
-    state = {
-        'opt': opt,
-        'model': model.state_dict(),
-        'classifier': classifier.state_dict(),
-        'optimizer': optimizer.state_dict(),
-        'epoch': epoch,
-    }
-    torch.save(state, save_file)
-    del state
-
 
 def sample_estimator(model, classifier, num_classes, feature_list, train_loader):
     """

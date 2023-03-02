@@ -24,7 +24,6 @@ def process_args():
     parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider', 'ce'],
                     help='loss of experiment')
     parser.add_argument('--name', type=str, default = 'ckpt_c10')
-    parser.add_argument('--server', default='inst', type=str, help='which server the exp runs on') # will be optimized later
     parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='location of in-distribution dataset')
     parser.add_argument('--ood_loc', default="datasets/small_OOD_dataset", type=str, help='location of ood datasets')
 

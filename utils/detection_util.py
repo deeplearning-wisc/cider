@@ -14,16 +14,14 @@ def set_ood_loader_small(args, out_dataset, img_size = 32):
     root = args.ood_loc
     normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
                                          std=[x/255.0 for x in [63.0, 62.1, 66.7]])
-    # normalize = transforms.Normalize((0.4914, 0.4822, 0.4465), (0.2023, 0.1994, 0.2010)) #for c-10 trained with ce
     if out_dataset == 'SVHN':
-        testsetout = SVHN(f'{root}/svhn/', split='test',
+        testsetout = SVHN(root=os.path.join(root, 'svhn'), split='test',
                                 transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size),transforms.ToTensor(), normalize]), download=False)
     elif out_dataset == 'dtd':
-        testsetout = torchvision.datasets.ImageFolder(root=f"{root}/dtd/images",
+        testsetout = torchvision.datasets.ImageFolder(root=os.path.join(root, 'dtd', 'images'),
                                     transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size ), transforms.ToTensor(),normalize]))
     elif out_dataset == 'places365':
-        root_tmp = f"{root}/places365" # inst
-        testsetout = torchvision.datasets.ImageFolder(root= root_tmp,
+        testsetout = torchvision.datasets.ImageFolder(root= os.path.join(root, 'places365'),
             transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size), transforms.ToTensor(),normalize]))
     else:
         testsetout = torchvision.datasets.ImageFolder(f"{root}/{out_dataset}",
@@ -52,31 +50,14 @@ def set_ood_loader_ImageNet(args, out_dataset):
         testsetout = torchvision.datasets.ImageFolder(root=os.path.join(root, 'iNaturalist'), transform=preprocess)
     elif out_dataset == 'SUN':
         testsetout = torchvision.datasets.ImageFolder(root=os.path.join(root, 'SUN'), transform=preprocess)
-    elif out_dataset == 'places365': # filtered places
+    elif out_dataset == 'places365': # subsampled places
         testsetout = torchvision.datasets.ImageFolder(root= os.path.join(root, 'Places'),transform=preprocess)  
     elif out_dataset == 'placesbg': 
         testsetout = torchvision.datasets.ImageFolder(root= os.path.join(root, 'placesbg'),transform=preprocess)  
     elif out_dataset == 'dtd':
-        if args.server == 'galaxy-01':
-            testsetout = torchvision.datasets.ImageFolder(root=os.path.join(root, 'Textures'),
-                                    transform=preprocess)
-        elif args.server == 'galaxy-02':
-            root = '/nobackup-slow/dataset'
-        else:
-            root = args.ood_loc
-            # root = '/nobackup/dataset_myf/ood_datasets'
         testsetout = torchvision.datasets.ImageFolder(root=os.path.join(root, 'dtd', 'images'),
                                         transform=preprocess)
 
-    # elif out_dataset == 'ImageNet100':
-    #     if args.server in ['inst-01', 'inst-04']:
-    #         path = os.path.join('/nobackup','ImageNet')
-    #     elif args.server in ['galaxy-01', 'galaxy-02']:
-    #         path = os.path.join(root, 'ILSVRC-2012')
-    #     id1 = 'test_imagenet100_10_seed_4'
-    #     testsetout = ImageNetSubset(100, path, train=False, seed=args.seed, transform=preprocess, id=id1)
-    # if len(testsetout) > 10000: 
-    #     testsetout = torch.utils.data.Subset(testsetout, np.random.choice(len(testsetout), 10000, replace=False))
     testloaderOut = torch.utils.data.DataLoader(testsetout, batch_size=args.batch_size,
                                             shuffle=False, num_workers=4)
     return testloaderOut
@@ -86,7 +67,7 @@ def obtain_feature_from_loader(args, net, loader, num_batches):
     if args.layer_idx == 1:
         embedding_dim = 128
     elif args.layer_idx == 0:
-        embedding_dim = 512 #for resnet-18 and34
+        embedding_dim = 512 #for resnet-18 and 34
         # embedding_dim = 2048 #for resnet-50
     out_features = torch.zeros((0, embedding_dim), device = 'cuda')
     with torch.no_grad():
