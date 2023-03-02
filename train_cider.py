@@ -213,7 +213,7 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_comp, cri
         if args.loss == 'cider':
             dis_loss = criterion_dis.compute()
             comp_loss = criterion_comp(features, criterion_dis.prototypes, target)
-            loss = comp_loss + args.w * dis_loss
+            loss = args.w * comp_loss + dis_loss
             dis_losses.update(dis_loss.data, input.size(0))
             comp_losses.update(comp_loss.data, input.size(0))
         elif args.loss == 'supcon':
