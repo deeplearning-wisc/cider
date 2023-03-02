@@ -33,6 +33,7 @@ wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/Places.tar.gz
 The directory structure looks like:
 ```python
 datasets/
+---ImageNet100/
 ---ImageNet_OOD_dataset/
 ------dtd/
 ------iNaturalist/
@@ -46,6 +47,8 @@ The directory structure looks like:
 
 ```python
 datasets/
+---CIFAR10/
+---CIFAR100/
 ---small_OOD_dataset/
 ------dtd/
 ------iSUN/
