@@ -14,7 +14,7 @@ import torch.optim
 import torch.utils.data
 import numpy as np
 
-from utils import (CompLoss, DisLoss, SupConLoss, 
+from utils import (CompLoss, DisLoss, DisLPLoss, SupConLoss, 
                 AverageMeter, adjust_learning_rate, warmup_learning_rate, 
                 set_loader_small, set_loader_ImageNet, set_model)
 
@@ -150,7 +150,8 @@ def main():
     model = set_model(args)
 
     criterion_supcon = SupConLoss(temperature=args.temp).cuda()
-    criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda()
+    criterion_dis = DisLPLoss(args, model, val_loader, temperature=args.temp).cuda() # V1: learnable prototypes
+    # criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
     criterion_comp = CompLoss(args, temperature=args.temp).cuda()
 
     optimizer = torch.optim.SGD([ {"params": model.parameters()},
@@ -211,7 +212,8 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_comp, cri
         features= model.head(penultimate)
         features= F.normalize(features, dim=1)
         if args.loss == 'cider':
-            dis_loss = criterion_dis.compute()
+            dis_loss = criterion_dis.compute() # V1: learnable prototypes
+            # dis_loss = criterion_dis(features) # V2: EMA style
             comp_loss = criterion_comp(features, criterion_dis.prototypes, target)
             loss = args.w * comp_loss + dis_loss
             dis_losses.update(dis_loss.data, input.size(0))
