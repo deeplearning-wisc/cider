@@ -82,7 +82,7 @@ datasets/
 
 **Evaluate pre-trained checkpoints** 
 
-Our checkpoints can be downloaded here for [CIFAR-100](https://drive.google.com/drive/folders/1SjW2kvhDQ6qcsIo5TR7eLMrcL3r6Y3QN?usp=share_link) and [CIFAR-10](https://drive.google.com/drive/folders/1rkXQYHcaITZCj55OLNXqy_b-yjktONrn?usp=share_link). Create a directory named `checkpoints/{ID}` in the root directory of the project and put the downloaded checkpoints here:
+Our checkpoints can be downloaded here for [CIFAR-100](https://drive.google.com/drive/folders/1SjW2kvhDQ6qcsIo5TR7eLMrcL3r6Y3QN?usp=share_link) and [CIFAR-10](https://drive.google.com/drive/folders/1rkXQYHcaITZCj55OLNXqy_b-yjktONrn?usp=share_link). Create a directory named `checkpoints/[ID_DATASET]` in the root directory of the project and put the downloaded checkpoints here. For example, for CIFAR-10 and CIFAR-100:
 
 ```
 checkpoints/
