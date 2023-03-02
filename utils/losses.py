@@ -1,6 +1,6 @@
 
 """
-Aapted from SupCLR: https://github.com/HobbitLong/SupContrast/
+Aapted from SupCon: https://github.com/HobbitLong/SupContrast/
 """
 from __future__ import print_function
 
@@ -8,7 +8,6 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 import time
-from copy import deepcopy
 
 def binarize(T, nb_classes):
     T = T.cpu().numpy()
@@ -175,7 +174,6 @@ class CompLoss(nn.Module):
         logits = feat_dot_prototype - logits_max.detach()
 
         # compute log_prob
-        # exp_logits = torch.exp(logits) * logits_mask
         exp_logits = torch.exp(logits) 
         log_prob = logits - torch.log(exp_logits.sum(1, keepdim=True))
 
