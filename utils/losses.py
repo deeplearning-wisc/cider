@@ -150,9 +150,12 @@ class SupConLoss(nn.Module):
 
         return loss
 
-class SupConProxyLoss(nn.Module):
+class DispersionLoss(nn.Module):
+    '''
+    Dispersion Loss with learnable prototypes
+    '''
     def __init__(self, args, temperature=0.07, base_temperature=0.07):
-        super(SupConProxyLoss, self).__init__()
+        super(DispersionLoss, self).__init__()
         self.args = args
         self.temperature = temperature
         self.base_temperature = base_temperature
@@ -194,20 +197,17 @@ class SupConProxyLoss(nn.Module):
         return loss
 
 
-class SupUniformLPLoss(nn.Module):
+class CompactnessLoss(nn.Module):
     '''
-    Uniformity Loss or Dispersion Loss with learnable prototypes
+    CompactnessLoss with learnable prototypes
     '''
     def __init__(self, args, model, loader, temperature= 0.1, base_temperature=0.1):
-        super(SupUniformLPLoss, self).__init__()
+        super(CompactnessLoss, self).__init__()
         self.args = args
         self.temperature = temperature
         self.base_temperature = base_temperature
         self.model = model
         self.loader = loader
-
-        # self.prototypes = torch.nn.Parameter(torch.randn(self.args.n_cls,self.args.feat_dim).cuda())
-        # nn.init.kaiming_normal_(self.prototypes, mode='fan_out')
         self.init_class_prototypes()
 
     def forward(self, features, labels=None, mask=None):

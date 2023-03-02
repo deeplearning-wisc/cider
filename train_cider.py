@@ -18,13 +18,11 @@ import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 import torch.optim
 import torch.utils.data
-import torchvision.transforms as transforms
-import torchvision.datasets as datasets
 # import torchvision
 import numpy as np
 
-from utils import SupConProxyLoss, SupUniformLPLoss
-from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageNet, set_model, warmup_learning_rate, accuracy, AverageMeter
+from utils import CompactnessLoss, DispersionLoss
+from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageNet, set_model, warmup_learning_rate, AverageMeter
 # used for logging to TensorBoard
 from tensorboard_logger import configure, log_value
 
@@ -90,7 +88,9 @@ if args.loss == 'supcon':
         format(args.model, args.learning_rate, args.cosine,
                args.batch_size, args.loss, args.epochs, args.feat_dim, args.trial, args.temp, args.in_dataset, args.head)
 elif args.loss == 'cider': 
-    args.name = f"{date_time}_cider_{args.model}_lr_{args.learning_rate}_cosine_{args.cosine}_bsz_{args.batch_size}_{args.loss}_wd_{args.w_dis}_{args.epochs}_{args.feat_dim}_trial_{args.trial}_temp_{args.temp}_{args.in_dataset}_pm_{args.proto_m}__feat_mormalize_{args.normalize}"
+    args.name = (f"{date_time}_cider_{args.model}_lr_{args.learning_rate}_cosine_"
+        f"{args.cosine}_bsz_{args.batch_size}_{args.loss}_wd_{args.w_dis}_{args.epochs}_{args.feat_dim}_"
+        f"trial_{args.trial}_temp_{args.temp}_{args.in_dataset}_pm_{args.proto_m}")
 
 args.log_directory = "logs/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name)
 args.model_directory = "checkpoints/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
@@ -126,12 +126,14 @@ elif args.in_dataset in ["CIFAR-100", "ImageNet-100"]:
     args.n_cls = 100
 elif args.in_dataset == "Tiny-200":
     args.n_cls = 200
+
 #set seeds
 torch.manual_seed(args.seed)
 torch.cuda.manual_seed(args.seed)
 np.random.seed(args.seed)
 log.debug(f"{args.name}")
-# warm-up for large-batch training,
+
+# warm-up for large-batch training
 if args.batch_size > 256:
     args.warm = True
 if args.warm:
@@ -156,17 +158,8 @@ def main():
     model = set_model(args)
 
     criterion_supcon = SupConLoss(temperature=args.temp).cuda()
-    criterion_uni = SupUniformLPLoss(args, model, val_loader, temperature=args.temp).cuda()
-    criterion_dis = SupConProxyLoss(args, temperature=args.temp).cuda()
-
-    # params_to_update = []
-    # for param in model.parameters():
-    #     if param.requires_grad == True:
-    #         params_to_update.append(param)
-    # optimizer = torch.optim.SGD(params_to_update, lr = args.learning_rate,
-    #                             momentum=args.momentum,
-    #                             nesterov=True,
-    #                             weight_decay=args.weight_decay)
+    criterion_uni = CompactnessLoss(args, model, val_loader, temperature=args.temp).cuda()
+    criterion_dis = DispersionLoss(args, temperature=args.temp).cuda()
 
     optimizer = torch.optim.SGD([ {"params": model.parameters()},
                                   {"params": criterion_uni.prototypes}  
@@ -178,7 +171,6 @@ def main():
     for epoch in range(args.start_epoch, args.epochs):
         adjust_learning_rate(args, optimizer, epoch)
        #  adjust_learning_rate(optimizer, epoch, lr_schedule)
-
         # train for one epoch
         train_sloss, train_uloss, train_dloss = train_cider(args, train_loader, model, criterion_supcon, criterion_uni, criterion_dis, optimizer, epoch, log)
         if args.loss == 'supcon':
@@ -210,7 +202,6 @@ def main():
 def train_cider(args, train_loader, model, criterion_supcon, criterion_uni, criterion_dis, optimizer, epoch, log):
     """Train for one epoch on the training set"""
     batch_time = AverageMeter()
-    nat_top1 = AverageMeter()
     supcon_losses = AverageMeter()
     uni_losses = AverageMeter()
     dis_losses = AverageMeter()
@@ -221,7 +212,6 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_uni, crit
         warmup_learning_rate(args, epoch, i, len(train_loader), optimizer)
         bsz = target.shape[0]
         input = torch.cat([input[0], input[1]], dim=0).cuda()
-        # target = target.cuda()
         target = target.repeat(2).cuda()
 
         penultimate = model.encoder(input).squeeze()
@@ -236,8 +226,8 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_uni, crit
             dis_losses.update(dis_loss.data, input.size(0))
             uni_losses.update(uni_loss.data, input.size(0))
         else:
-            f1, f2 = torch.split(features, [bsz, bsz], dim=0) #f1 shape: [bz, 128]
-            features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1) #features shape: [bz, 2, 128]
+            f1, f2 = torch.split(features, [bsz, bsz], dim=0) #f1 shape: [bz, feat_dim]
+            features = torch.cat([f1.unsqueeze(1), f2.unsqueeze(1)], dim=1) #features shape: [bz, 2, feat_dim]
             supcon_loss = criterion_supcon(features, target[:bsz])
             supcon_losses.update(supcon_loss.data, input.size(0))
             loss = supcon_loss
@@ -254,13 +244,12 @@ def train_cider(args, train_loader, model, criterion_supcon, criterion_uni, crit
                 log.debug('Epoch: [{0}][{1}/{2}]\t'
                     'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
                     'Dis Loss {dloss.val:.4f} ({dloss.avg:.4f})\t'
-                    'Uni Loss {uloss.val:.4f} ({uloss.avg:.4f})\t'
-                    'Prec@1 {top1.val:.3f} ({top1.avg:.3f})'.format(
-                        epoch, i, len(train_loader), batch_time=batch_time, dloss=dis_losses, uloss = uni_losses, top1=nat_top1))
+                    'Comp Loss {uloss.val:.4f} ({uloss.avg:.4f})\t'.format(
+                        epoch, i, len(train_loader), batch_time=batch_time, dloss=dis_losses, uloss = uni_losses))
             elif args.loss == 'supcon':
                 log.debug('Epoch: [{0}][{1}/{2}]\t'
                     'Time {batch_time.val:.3f} ({batch_time.avg:.3f})\t'
-                    'Aux Loss {sloss.val:.4f} ({sloss.avg:.4f})\t'.format(
+                    'SupCon Loss {sloss.val:.4f} ({sloss.avg:.4f})\t'.format(
                         epoch, i, len(train_loader), batch_time=batch_time, sloss=supcon_losses))
 
     return supcon_losses.avg, uni_losses.avg, dis_losses.avg 
