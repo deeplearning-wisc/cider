@@ -21,22 +21,22 @@ def process_args():
     parser.add_argument('-b', '--batch-size', default=512, type=int, help='mini-batch size')
     parser.add_argument('--epoch', default ="500", type=str, help='which epoch to test')
     parser.add_argument('--gpu', default=0,  type=int, help='which GPU to use')
-    parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider', 'ce'],
+    parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider'],
                     help='loss of experiment')
     parser.add_argument('--name', type=str, default = 'ckpt_c10')
     parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='location of in-distribution dataset')
     parser.add_argument('--ood_loc', default="datasets/small_OOD_dataset", type=str, help='location of ood datasets')
 
     parser.add_argument('--score', default='knn', type=str, help='score options: knn|maha|msp|odin|energy')
-    parser.add_argument('--K', default=20, type=int, help='K in KNN score')
+    parser.add_argument('--K', default=100, type=int, help='K in KNN score')
     parser.add_argument('--subset', default=False, type=bool, help='whether to use subset for KNN')
     # parser.add_argument('--norm_pe', type = bool, default = True, help='if normalize penultimate layer')
     parser.add_argument('--multiplier', default=1, type=float,
                      help='norm multipler to help solve numerical issues with precision matrix')
     parser.add_argument('--model', default='resnet18', type=str, help='model architecture')
-    parser.add_argument('--feat_dim', default = 128, type=int, help='feature dim')
+    parser.add_argument('--embedding_dim', default = 512, type=int, help='encoder feature dim')
+    parser.add_argument('--feat_dim', default = 128, type=int, help='head feature dim')
     parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
-    parser.add_argument('--layer_idx', default=0, type=int, help='whether to use penultimate layer or proj head')
     parser.add_argument('--normalize', action='store_true',
                         help='normalize feat embeddings')
     parser.add_argument('--out_as_pos', action='store_true', help='if OOD data defined as positive class.')
@@ -69,7 +69,7 @@ def get_Mahalanobis_score(args, net, test_loader, classwise_mean, precision, in_
         for batch_idx, (images, labels) in enumerate(tqdm_object):
             if (batch_idx >= total_len // args.batch_size) and in_dist is False:
                 break   
-            features = net.intermediate_forward(images.cuda(), layer_index = 0) 
+            features = net.intermediate_forward(images.cuda()) 
 
             for i in range(args.n_cls):
                 class_mean = classwise_mean[i]
@@ -112,15 +112,14 @@ def get_mean_prec(args, net, train_loader):
         classwise_mean = torch.load(mean_loc, map_location= 'cpu').cuda()
         precision = torch.load(prec_loc, map_location= 'cpu').cuda()
     else: 
-        embedding_dim = 512
-        classwise_mean = torch.empty(args.n_cls, embedding_dim,  device = 'cuda')
-        all_features = torch.zeros((0, embedding_dim), device = 'cuda')
+        classwise_mean = torch.empty(args.n_cls, args.embedding_dim,  device = 'cuda')
+        all_features = torch.zeros((0, args.embedding_dim), device = 'cuda')
         # classwise_features = []
         from collections import defaultdict
         classwise_idx = defaultdict(list)
         with torch.no_grad():
             for idx, (image, labels) in enumerate(tqdm(train_loader)):
-                out_feature = net.intermediate_forward(image.cuda(), layer_index = 0) 
+                out_feature = net.intermediate_forward(image.cuda()) 
                 for label in labels:
                     classwise_idx[label.item()].append(idx)
                 all_features = torch.cat((all_features,out_feature), dim = 0)

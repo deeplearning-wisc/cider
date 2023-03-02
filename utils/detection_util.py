@@ -11,21 +11,28 @@ from .display_results import print_measures_with_std
 from .svhn_loader import SVHN
 
 def set_ood_loader_small(args, out_dataset, img_size = 32):
+    '''
+        set OOD loader for CIFAR scale datasets
+    '''
     root = args.ood_loc
     normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
                                          std=[x/255.0 for x in [63.0, 62.1, 66.7]])
     if out_dataset == 'SVHN':
         testsetout = SVHN(root=os.path.join(root, 'svhn'), split='test',
-                                transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size),transforms.ToTensor(), normalize]), download=False)
+                                transform=transforms.Compose([transforms.Resize(img_size), 
+                                transforms.CenterCrop(img_size),transforms.ToTensor(), normalize]), download=False)
     elif out_dataset == 'dtd':
         testsetout = torchvision.datasets.ImageFolder(root=os.path.join(root, 'dtd', 'images'),
-                                    transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size ), transforms.ToTensor(),normalize]))
+                                    transform=transforms.Compose([transforms.Resize(img_size), 
+                                    transforms.CenterCrop(img_size ), transforms.ToTensor(),normalize]))
     elif out_dataset == 'places365':
         testsetout = torchvision.datasets.ImageFolder(root= os.path.join(root, 'places365'),
-            transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size), transforms.ToTensor(),normalize]))
+            transform=transforms.Compose([transforms.Resize(img_size), 
+            transforms.CenterCrop(img_size), transforms.ToTensor(),normalize]))
     else:
-        testsetout = torchvision.datasets.ImageFolder(f"{root}/{out_dataset}",
-                                    transform=transforms.Compose([transforms.Resize(img_size), transforms.CenterCrop(img_size),transforms.ToTensor(),normalize]))
+        testsetout = torchvision.datasets.ImageFolder(root = os.path.join(root, out_dataset),
+                                    transform=transforms.Compose([transforms.Resize(img_size), 
+                                    transforms.CenterCrop(img_size),transforms.ToTensor(),normalize]))
     
     if len(testsetout) > 10000: 
         testsetout = torch.utils.data.Subset(testsetout, np.random.choice(len(testsetout), 10000, replace=False))
@@ -35,7 +42,7 @@ def set_ood_loader_small(args, out_dataset, img_size = 32):
 
 def set_ood_loader_ImageNet(args, out_dataset):
     '''
-    set OOD loader for ImageNet scale datasets
+        set OOD loader for ImageNet scale datasets
     '''
     root = args.ood_loc
     normalize = transforms.Normalize(mean=[0.485, 0.456, 0.406],
@@ -63,12 +70,7 @@ def set_ood_loader_ImageNet(args, out_dataset):
     return testloaderOut
 
 
-def obtain_feature_from_loader(args, net, loader, num_batches):
-    if args.layer_idx == 1:
-        embedding_dim = 128
-    elif args.layer_idx == 0:
-        embedding_dim = 512 #for resnet-18 and 34
-        # embedding_dim = 2048 #for resnet-50
+def obtain_feature_from_loader(args, net, loader, num_batches, embedding_dim = 512):
     out_features = torch.zeros((0, embedding_dim), device = 'cuda')
     with torch.no_grad():
         for batch_idx, (data, target) in enumerate(tqdm(loader)):
@@ -76,11 +78,7 @@ def obtain_feature_from_loader(args, net, loader, num_batches):
                 if batch_idx >= num_batches:
                     break
             data, target = data.cuda(), target.cuda()
-            out_feature = net.intermediate_forward(data, args.layer_idx) 
-            # if layer_idx == 0: # out_feature: bz, 512, 4, 4
-            #     out_feature = out_feature.view(out_feature.size(0), out_feature.size(1), -1) #bz, 512, 16
-            #     out_feature = torch.mean(out_feature, 2) # bz, 512
-            #     out_feature =F.normalize(out_feature, dim = 1)
+            out_feature = net.intermediate_forward(data) 
             out_features = torch.cat((out_features,out_feature), dim = 0)
     return out_features.cpu().numpy()
 

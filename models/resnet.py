@@ -119,7 +119,7 @@ class ResNet(nn.Module):
         return out
 
     # function to extact a specific feature
-    def intermediate_forward(self, x, layer_index):
+    def intermediate_forward(self, x):
         out = F.relu(self.bn1(self.conv1(x)))
         out = self.layer1(out)
         out = self.layer2(out)
@@ -224,10 +224,6 @@ class SupCEHeadResNet(nn.Module):
         features= F.normalize(unnorm_features, dim=1)
         return features
     
-    def intermediate_forward(self, x, layer_index):
+    def intermediate_forward(self, x):
         feat = self.encoder(x).squeeze()
-        if layer_index == 0:
-            return F.normalize(feat, dim=1)
-        elif layer_index == 1:
-            feat = self.multiplier * F.normalize(self.head(feat), dim=1) 
-            return feat
+        return F.normalize(feat, dim=1)
