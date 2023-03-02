@@ -86,12 +86,12 @@ sh scripts/eval_ckpt_cifar100.sh ckpt_c100 # for CIFAR-100
 
 **Evaluate custom checkpoints** 
 
-Create a softlink to the directory where the actual checkpoints are saved and name it as `checkpoints`. For example, checkpoints for ImageNet-100 (ID) are accessible in the `checkpoints` directory with the following structure: 
+The default directory to save checkpoints is `checkpoints`. Otherwise, create a softlink to the directory where the actual checkpoints are saved and name it as `checkpoints`). For example, checkpoints for CIFAR-100 (ID) are accessible in the `checkpoints` directory with the following structure: 
 
 ```python
 checkpoints/
----ImageNet-100/
-------19_09_00:21_cider_resnet34_lr_0.001_cosine_True_xxxx_momentum_norm/
+---CIFAR-100/
+------name_of_ckpt/
 ---------checkpoint_5.pth.tar
 ---------checkpoint_10.pth.tar
 ```
@@ -100,7 +100,7 @@ checkpoints/
 
 **Train from scratch** 
 
-We provide sample scripts to triain from scratch. Feel free to modify the hyperparameters and training configurations.
+We provide sample scripts to train from scratch. Feel free to modify the hyperparameters and training configurations.
 
 ```
 sh scripts/train_cider_cifar10.sh
