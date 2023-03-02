@@ -1,30 +1,22 @@
 import argparse
 import math
-from utils.losses import SupConLoss
-from models.resnet import SupCEResNet
 import os
-# import sys
 import time
 from datetime import datetime
 import logging
 import tensorboard_logger as tb_logger
-# import json
 import pprint
 
 import torch
-import torch.nn as nn
 import torch.nn.parallel
-import torch.backends.cudnn as cudnn
 import torch.nn.functional as F
 import torch.optim
 import torch.utils.data
-# import torchvision
 import numpy as np
 
-from utils import CompactnessLoss, DispersionLoss
-from utils.util import adjust_learning_rate, set_loader_small, set_loader_ImageNet, set_model, warmup_learning_rate, AverageMeter
-# used for logging to TensorBoard
-from tensorboard_logger import configure, log_value
+from utils import (CompactnessLoss, DispersionLoss, SupConLoss, 
+                AverageMeter, adjust_learning_rate, warmup_learning_rate, 
+                set_loader_small, set_loader_ImageNet, set_model)
 
 parser = argparse.ArgumentParser(description='Training with CIDER and SupCon Loss')
 parser.add_argument('--gpu', default=3, type=int, help='which GPU to use')
