@@ -1,21 +1,15 @@
-import torchvision
-from torchvision.transforms import transforms
-import numpy as np
-import sys
-import logging
 import os
 import argparse
+
+import numpy as np
 import torch
-import torch.nn as nn
 import torch.nn.functional as F
-from models.resnet import *
-import seaborn as sns
-import matplotlib.pyplot as plt
-from utils import *
+
 import faiss
 from tqdm import tqdm
-from utils.detection_util import set_ood_loader_ImageNet, obtain_feature_from_loader, set_ood_loader_small, get_and_print_results
 
+from models.resnet import *
+from utils.detection_util import set_ood_loader_ImageNet, obtain_feature_from_loader, set_ood_loader_small, get_and_print_results
 from utils.util import set_loader_ImageNet, set_loader_small, set_model
 from utils.display_results import  plot_distribution, print_measures, save_as_dataframe
 
@@ -92,33 +86,6 @@ def get_Mahalanobis_score(args, net, test_loader, classwise_mean, precision, in_
     return np.asarray(Mahalanobis_score_all, dtype=np.float32)
 
 
-def get_logit_based_scores(args, net, loader, in_dist=False):
-    to_np = lambda x: x.data.cpu().numpy()
-    concat = lambda x: np.concatenate(x, axis=0)
-    _score = []
-    # embeddings = []
-    targets_embed = []
-
-    with torch.no_grad():
-        for batch_idx, (data, target) in enumerate(loader):
-            if batch_idx >= len(loader.dataset)  // args.batch_size and in_dist is False:
-                break
-            data = data.cuda()
-            # embed= net.encoder(data)
-            # output = net.fc(embed)
-            output = net(data)
-            smax = to_np(F.softmax(output/args.T, dim=1))
-            # embeddings.append(embed.cpu().numpy())
-            targets_embed.append(target)
-
-            if args.score == 'energy':
-                _score.append(-to_np((args.T*torch.logsumexp(output / args.T, dim=1))))
-            elif args.score == 'msp': # original MSP and Mahalanobis (but Mahalanobis won't need this returned)
-                _score.append(-np.max(smax, axis=1))
-
-        return concat(_score)[:len(loader.dataset)].copy()
-
-
 
 def get_features(args, net, train_loader, test_loader):
     feat_dir= f"feat/{args.in_dataset}/{args.name}/{args.epoch}"
@@ -161,8 +128,8 @@ def get_mean_prec(args, net, train_loader):
         for cls in range(args.n_cls):
             classwise_mean[cls] = torch.mean(all_features[classwise_idx[cls]].float(), dim = 0)
             classwise_mean[cls] /= classwise_mean[cls].norm(dim=-1, keepdim=True)
-        # now, classwise_mean is of shape [10, 512]
-        cov = torch.cov(all_features.T.double()) # shape: [512, 512]
+       
+        cov = torch.cov(all_features.T.double()) 
         # cov = cov + 1e-7*torch.eye(all_features.shape[1]).cuda()
         precision = torch.linalg.inv(cov).float()
         print(f'cond number: {torch.linalg.cond(precision)}')
@@ -205,8 +172,6 @@ def main(args):
     elif args.score == 'maha':
         classwise_mean, precision = get_mean_prec(args, net, train_loader)
         in_score = get_Mahalanobis_score(args, net, test_loader, classwise_mean, precision, in_dist = True)
-    elif args.score in ["msp", "energy"]:
-        in_score = get_logit_based_scores(args, net, test_loader, in_dist=True)   
 
     print('preprocessing ID finished')
     if args.in_dataset == 'ImageNet-100':
@@ -228,8 +193,6 @@ def main(args):
             out_score = D[:,-1]
         elif args.score == "maha":
             out_score = get_Mahalanobis_score(args, net, ood_loader, classwise_mean, precision, in_dist = False)
-        elif args.score in ["msp", "energy"]:
-            out_score = get_logit_based_scores(args, net, ood_loader, in_dist=False) 
         
         print(in_score[:3], out_score[:3])  
         plot_distribution(args, in_score, out_score, out_dataset)
@@ -239,39 +202,12 @@ def main(args):
     print_measures(None, np.mean(auroc_list), np.mean(aupr_list), np.mean(fpr_list), method_name=args.name)
     save_as_dataframe(args, out_datasets, fpr_list, auroc_list, aupr_list)
 
-def calculate_avg_dist(all_feat, class_mean):
-    '''
-    calcualte the avg max distance given mean vectors and all features
-    '''
-    max_dist = []
-    max_dist = (class_mean @ all_feat.T).max(axis = 0)
-    avg_cosine_similairty = max_dist.mean()
-    degree = np.degrees(np.arccos(avg_cosine_similairty))
-    print(f'avg cosine similarity: {avg_cosine_similairty}; or degree: {degree}')
-    return avg_cosine_similairty, degree
-
-
-def calculate_metrics(args):
-    train_loader, test_loader, net = set_up(args)
-    classwise_mean, precision = get_mean_prec(args, net, test_loader)
-    classwise_mean =classwise_mean.cpu().numpy()
-    id_feat = obtain_feature_from_loader(args, net, test_loader, num_batches = None)
-    id_cos, id_degree = calculate_avg_dist(id_feat, classwise_mean)
-    out_datasets = [ 'SVHN', 'places365', 'iSUN', 'dtd', 'LSUN']
-    for out_dataset in out_datasets:
-        print(f"Evaluting OOD dataset {out_dataset}")
-        ood_loader = set_ood_loader_small(args, out_dataset)
-        ood_feat = obtain_feature_from_loader(args, net, ood_loader, num_batches = None)
-        ood_cos, ood_degree = calculate_avg_dist(ood_feat, classwise_mean)
-        print(f"id_ood_saparability: {ood_cos - id_cos}; or degree: {ood_degree - id_degree}")
-
 
 if __name__ == '__main__':
     args = process_args()
     #prform OOD detection
     main(args)
-    #Calculate metrics
-    # calculate_metrics(args)
+
 
 
 
