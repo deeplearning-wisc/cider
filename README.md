@@ -126,6 +126,8 @@ sh scripts/train_cider_cifar10.sh
 sh scripts/train_cider_cifar100.sh
 ```
 
+**Fine-tune from ImageNet pre-trained models** 
+
 We also provide fine-tuning scripts on large-scale datasets such as ImageNet-100.
 
 ```
