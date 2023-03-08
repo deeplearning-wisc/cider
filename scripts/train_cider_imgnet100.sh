@@ -7,5 +7,5 @@ python train_cider.py \
     --epochs 20 \
     --proto_m 0.95 \
     --feat_dim 128 \
-    --w_dis 2 \
+    --w 2 \
     --cosine
