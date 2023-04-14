@@ -30,15 +30,12 @@ def process_args():
     parser.add_argument('--score', default='knn', type=str, help='score options: knn|maha|msp|odin|energy')
     parser.add_argument('--K', default=100, type=int, help='K in KNN score')
     parser.add_argument('--subset', default=False, type=bool, help='whether to use subset for KNN')
-    # parser.add_argument('--norm_pe', type = bool, default = True, help='if normalize penultimate layer')
     parser.add_argument('--multiplier', default=1, type=float,
                      help='norm multipler to help solve numerical issues with precision matrix')
     parser.add_argument('--model', default='resnet18', type=str, help='model architecture')
     parser.add_argument('--embedding_dim', default = 512, type=int, help='encoder feature dim')
     parser.add_argument('--feat_dim', default = 128, type=int, help='head feature dim')
     parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
-    parser.add_argument('--normalize', action='store_true',
-                        help='normalize feat embeddings')
     parser.add_argument('--out_as_pos', action='store_true', help='if OOD data defined as positive class.')
     parser.add_argument('--T', default=1000, type=float, help='temperature: energy|Odin')
     args = parser.parse_args()
