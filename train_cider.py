@@ -32,7 +32,7 @@ parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='loca
 parser.add_argument('--model', default='resnet18', type=str, help='model architecture: [resnet18, wrt40, wrt28, densenet100]')
 parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
 parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider'],
-                    help='name of experiment')
+                    help='train loss')
 parser.add_argument('--epochs', default=500, type=int,
                     help='number of total epochs to run')
 parser.add_argument('--trial', type=str, default='0',
