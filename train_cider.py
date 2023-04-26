@@ -161,7 +161,7 @@ def main():
     #                             weight_decay=args.weight_decay)
 
     # V2: EMA style prototypes
-    criterion_dis = DisLoss(args, model, train_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
+    criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
     optimizer = torch.optim.SGD(model.parameters(), lr = args.learning_rate,
                                 momentum=args.momentum,
                                 nesterov=True,
