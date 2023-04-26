@@ -124,10 +124,8 @@ def get_mean_prec(args, net, train_loader):
         
         for cls in range(args.n_cls):
             classwise_mean[cls] = torch.mean(all_features[classwise_idx[cls]].float(), dim = 0)
-            # classwise_mean[cls] /= classwise_mean[cls].norm(dim=-1, keepdim=True) 
             
         cov = torch.cov(all_features.T.double()) 
-        # cov = cov + 1e-7*torch.eye(all_features.shape[1]).cuda()
         precision = torch.linalg.inv(cov).float()
         print(f'cond number: {torch.linalg.cond(precision)}')
         torch.save(classwise_mean, mean_loc)
@@ -148,7 +146,6 @@ def set_up(args):
         print("loading model as SupCE format")
         pretrained_dict= torch.load(args.ckpt,  map_location='cpu')['model']
 
-    # pretrained_dict = {key.replace("module.", ""): value for key, value in pretrained_dict.items()}
     net = set_model(args)
     net.load_state_dict(pretrained_dict)
     net.eval()
