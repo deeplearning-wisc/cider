@@ -111,19 +111,21 @@ def get_mean_prec(args, net, train_loader):
     else: 
         classwise_mean = torch.empty(args.n_cls, args.embedding_dim,  device = 'cuda')
         all_features = torch.zeros((0, args.embedding_dim), device = 'cuda')
-        # classwise_features = []
-        from collections import defaultdict
-        classwise_idx = defaultdict(list)
+
         with torch.no_grad():
             for idx, (image, labels) in enumerate(tqdm(train_loader)):
                 out_feature = net.intermediate_forward(image.cuda()) 
-                for label in labels:
-                    classwise_idx[label.item()].append(idx)
+
                 all_features = torch.cat((all_features,out_feature), dim = 0)
+        
+        targets = np.array(train_loader.dataset.targets) 
+        for class_id in range(args.n_cls):
+            classwise_idx[class_id] = np.where(targets == class_id)[0]
+        
         for cls in range(args.n_cls):
             classwise_mean[cls] = torch.mean(all_features[classwise_idx[cls]].float(), dim = 0)
-            # classwise_mean[cls] /= classwise_mean[cls].norm(dim=-1, keepdim=True)
-       
+            # classwise_mean[cls] /= classwise_mean[cls].norm(dim=-1, keepdim=True) 
+            
         cov = torch.cov(all_features.T.double()) 
         # cov = cov + 1e-7*torch.eye(all_features.shape[1]).cuda()
         precision = torch.linalg.inv(cov).float()
