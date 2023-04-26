@@ -14,7 +14,7 @@ Out-of-distribution (OOD) detection is a critical task for reliable machine lear
 
 ## Quick Start
 
-Remarks: This is the initial version of our codebase, and while the scripts are functional, there is much room for improvement in terms of streamlining the pipelines for better efficiency. Additionally, there are unused parts that we plan to remove in an upcoming cleanup soon. Stay tuned for more updates.
+Remarks: This is the initial version of our codebase, and while the scripts are functional, there is still room for improvement (e.g. optimizing the pipelines for better efficiency). We are continuing improving the codebase for reproducibility and ease of use. Stay tuned for more updates :).
 
 ### Data Preparation
 
