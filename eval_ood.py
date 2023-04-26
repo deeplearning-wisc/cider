@@ -17,22 +17,22 @@ from utils.display_results import  plot_distribution, print_measures, save_as_da
 def process_args():
     parser = argparse.ArgumentParser(description='Evaluates OOD Detector',formatter_class=argparse.ArgumentDefaultsHelpFormatter)
 
-    parser.add_argument('--in_dataset', default="CIFAR-10", type=str, help='in-distribution dataset') 
+    parser.add_argument('--in_dataset', default="CIFAR-100", type=str, help='in-distribution dataset') 
     parser.add_argument('-b', '--batch-size', default=512, type=int, help='mini-batch size')
     parser.add_argument('--epoch', default ="500", type=str, help='which epoch to test')
-    parser.add_argument('--gpu', default=0,  type=int, help='which GPU to use')
+    parser.add_argument('--gpu', default=4,  type=int, help='which GPU to use')
     parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider'],
                     help='loss of experiment')
-    parser.add_argument('--name', type=str, default = 'ckpt_c10')
-    parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='location of in-distribution dataset')
+    parser.add_argument('--name', type=str, default = '')
+    parser.add_argument('--id_loc', default="datasets/CIFAR100", type=str, help='location of in-distribution dataset')
     parser.add_argument('--ood_loc', default="datasets/small_OOD_dataset", type=str, help='location of ood datasets')
 
-    parser.add_argument('--score', default='knn', type=str, help='score options: knn|maha|msp|odin|energy')
+    parser.add_argument('--score', default='maha', type=str, help='score options: knn|maha|msp|odin|energy')
     parser.add_argument('--K', default=100, type=int, help='K in KNN score')
     parser.add_argument('--subset', default=False, type=bool, help='whether to use subset for KNN')
     parser.add_argument('--multiplier', default=1, type=float,
                      help='norm multipler to help solve numerical issues with precision matrix')
-    parser.add_argument('--model', default='resnet18', type=str, help='model architecture')
+    parser.add_argument('--model', default='resnet34', type=str, help='model architecture')
     parser.add_argument('--embedding_dim', default = 512, type=int, help='encoder feature dim')
     parser.add_argument('--feat_dim', default = 128, type=int, help='head feature dim')
     parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
@@ -111,7 +111,7 @@ def get_mean_prec(args, net, train_loader):
     else: 
         classwise_mean = torch.empty(args.n_cls, args.embedding_dim,  device = 'cuda')
         all_features = torch.zeros((0, args.embedding_dim), device = 'cuda')
-
+        classwise_idx = {}
         with torch.no_grad():
             for idx, (image, labels) in enumerate(tqdm(train_loader)):
                 out_feature = net.intermediate_forward(image.cuda()) 

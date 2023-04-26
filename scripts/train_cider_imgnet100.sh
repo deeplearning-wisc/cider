@@ -8,4 +8,5 @@ python train_cider.py \
     --proto_m 0.95 \
     --feat_dim 128 \
     --w 2 \
+    --learning_rate 0.01 \
     --cosine

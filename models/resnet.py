@@ -224,6 +224,9 @@ class SupCEHeadResNet(nn.Module):
         features= F.normalize(unnorm_features, dim=1)
         return features
     
-    def intermediate_forward(self, x):
+    def intermediate_forward(self, x, normalize = True):
         feat = self.encoder(x).squeeze()
-        return F.normalize(feat, dim=1)
+        if normalize: 
+            return F.normalize(feat, dim=1)
+        else: 
+            return feat

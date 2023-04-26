@@ -85,8 +85,9 @@ elif args.loss == 'cider':
         f"{args.cosine}_bsz_{args.batch_size}_{args.loss}_wd_{args.w}_{args.epochs}_{args.feat_dim}_"
         f"trial_{args.trial}_temp_{args.temp}_{args.in_dataset}_pm_{args.proto_m}")
 
-args.log_directory = "logs/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name)
-args.model_directory = "checkpoints/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
+args.log_directory = "logs/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name=args.name)
+# args.model_directory = "checkpoints/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
+args.model_directory = "/nobackup/yf/local_ckpt/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name=args.name)
 args.tb_path = './save/cider/{}_tensorboard'.format(args.in_dataset)
 if not os.path.exists(args.model_directory):
     os.makedirs(args.model_directory)
