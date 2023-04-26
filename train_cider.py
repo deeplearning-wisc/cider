@@ -86,8 +86,7 @@ elif args.loss == 'cider':
         f"trial_{args.trial}_temp_{args.temp}_{args.in_dataset}_pm_{args.proto_m}")
 
 args.log_directory = "logs/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name=args.name)
-# args.model_directory = "checkpoints/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
-args.model_directory = "/nobackup/yf/local_ckpt/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name=args.name)
+args.model_directory = "checkpoints/{in_dataset}/{name}/".format(in_dataset=args.in_dataset, name= args.name )
 args.tb_path = './save/cider/{}_tensorboard'.format(args.in_dataset)
 if not os.path.exists(args.model_directory):
     os.makedirs(args.model_directory)
@@ -162,7 +161,7 @@ def main():
     #                             weight_decay=args.weight_decay)
 
     # V2: EMA style prototypes
-    criterion_dis = DisLoss(args, model, val_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
+    criterion_dis = DisLoss(args, model, train_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
     optimizer = torch.optim.SGD(model.parameters(), lr = args.learning_rate,
                                 momentum=args.momentum,
                                 nesterov=True,
