@@ -122,7 +122,7 @@ def get_mean_prec(args, net, train_loader):
                 all_features = torch.cat((all_features,out_feature), dim = 0)
         for cls in range(args.n_cls):
             classwise_mean[cls] = torch.mean(all_features[classwise_idx[cls]].float(), dim = 0)
-            classwise_mean[cls] /= classwise_mean[cls].norm(dim=-1, keepdim=True)
+            # classwise_mean[cls] /= classwise_mean[cls].norm(dim=-1, keepdim=True)
        
         cov = torch.cov(all_features.T.double()) 
         # cov = cov + 1e-7*torch.eye(all_features.shape[1]).cuda()
