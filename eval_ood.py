@@ -111,7 +111,7 @@ def get_mean_prec(args, net, train_loader):
     else: 
         classwise_mean = torch.empty(args.n_cls, args.embedding_dim,  device = 'cuda')
         all_features = torch.zeros((0, args.embedding_dim), device = 'cuda')
-
+        classwise_idx = {} 
         with torch.no_grad():
             for idx, (image, labels) in enumerate(tqdm(train_loader)):
                 out_feature = net.intermediate_forward(image.cuda()) 
