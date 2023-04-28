@@ -29,7 +29,7 @@ parser.add_argument('--feat_dim', default = 128, type=int,
                     help='feature dim')
 parser.add_argument('--in-dataset', default="CIFAR-100", type=str, help='in-distribution dataset')
 parser.add_argument('--id_loc', default="datasets/CIFAR100", type=str, help='location of in-distribution dataset')
-parser.add_argument('--model', default='resnet34', type=str, help='model architecture: [resnet18, wrt40, wrt28, densenet100]')
+parser.add_argument('--model', default='resnet34', type=str, help='model architecture: [resnet18, resnet34]')
 parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
 parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider'],
                     help='train loss')
