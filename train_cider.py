@@ -21,15 +21,15 @@ from utils import (CompLoss, DisLoss, DisLPLoss, SupConLoss,
 parser = argparse.ArgumentParser(description='Training with CIDER and SupCon Loss')
 parser.add_argument('--gpu', default=7, type=int, help='which GPU to use')
 parser.add_argument('--seed', default=4, type=int, help='random seed')
-parser.add_argument('--w', default=2, type=float,
+parser.add_argument('--w', default=1, type=float,
                     help='loss scale')
-parser.add_argument('--proto_m', default= 0.99, type=float,
+parser.add_argument('--proto_m', default= 0.5, type=float,
                    help='weight of prototype update')
 parser.add_argument('--feat_dim', default = 128, type=int,
                     help='feature dim')
-parser.add_argument('--in-dataset', default="CIFAR-10", type=str, help='in-distribution dataset')
-parser.add_argument('--id_loc', default="datasets/CIFAR10", type=str, help='location of in-distribution dataset')
-parser.add_argument('--model', default='resnet18', type=str, help='model architecture: [resnet18, wrt40, wrt28, densenet100]')
+parser.add_argument('--in-dataset', default="CIFAR-100", type=str, help='in-distribution dataset')
+parser.add_argument('--id_loc', default="datasets/CIFAR100", type=str, help='location of in-distribution dataset')
+parser.add_argument('--model', default='resnet34', type=str, help='model architecture: [resnet18, wrt40, wrt28, densenet100]')
 parser.add_argument('--head', default='mlp', type=str, help='either mlp or linear head')
 parser.add_argument('--loss', default = 'cider', type=str, choices = ['supcon', 'cider'],
                     help='train loss')
@@ -64,6 +64,8 @@ parser.add_argument('--warm', action='store_true',
                         help='warm-up for large batch training')
 parser.add_argument('--normalize', action='store_true',
                         help='normalize feat embeddings')
+parser.add_argument('--subset', default=False,
+                        help='whether to use subset of training set to init prototypes')
 parser.set_defaults(bottleneck=True)
 parser.set_defaults(augment=True)
 
@@ -144,8 +146,10 @@ def main():
 
     if args.in_dataset == "ImageNet-100":
         train_loader, val_loader = set_loader_ImageNet(args)
+        aux_loader, _  = set_loader_ImageNet(args, eval = True)
     else:
         train_loader, val_loader = set_loader_small(args)
+        aux_loader, _ = set_loader_small(args, eval = True)
 
     model = set_model(args)
 
@@ -161,7 +165,7 @@ def main():
     #                             weight_decay=args.weight_decay)
 
     # V2: EMA style prototypes
-    criterion_dis = DisLoss(args, model, train_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
+    criterion_dis = DisLoss(args, model, aux_loader, temperature=args.temp).cuda() # V2: prototypes with EMA style update
     optimizer = torch.optim.SGD(model.parameters(), lr = args.learning_rate,
                                 momentum=args.momentum,
                                 nesterov=True,

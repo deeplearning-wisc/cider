@@ -1,13 +1,13 @@
 python train_cider.py \
     --in-dataset CIFAR-100\
     --id_loc datasets/CIFAR100 \
-    --gpu 7 \
+    --gpu 0 \
     --seed 7 \
     --model resnet34 \
     --loss cider \
     --epochs 500 \
-    --proto_m 0.95 \
+    --proto_m 0.5 \
     --feat_dim 128 \
-    --w 2 \
+    --w 1 \
     --batch-size 512 \
     --cosine

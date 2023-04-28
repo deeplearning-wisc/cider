@@ -87,15 +87,18 @@ def set_optimizer(opt, model):
                           weight_decay=opt.weight_decay)
     return optimizer
 
-def set_loader_small(args, eval = False, batch_size = None, img_size = 32):
+
+
+def set_loader_small(args, eval = False, batch_size = None):
     root = args.id_loc
     if batch_size is None:
         batch_size = args.batch_size
-    normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
-                                         std=[x/255.0 for x in [63.0, 62.1, 66.7]])
+    normalize = transforms.Normalize(mean=[0.491, 0.482, 0.447],
+                                    std=[0.247, 0.244, 0.262])
+ 
     # data augmentations for supcon                                     
     train_transform_supcon = transforms.Compose([
-        transforms.RandomResizedCrop(size=img_size, scale=(0.2, 1.)),
+        transforms.RandomResizedCrop(size=32, scale=(0.2, 1.)),
         transforms.RandomHorizontalFlip(),
         transforms.RandomApply([
             transforms.ColorJitter(0.4, 0.4, 0.4, 0.1)
@@ -112,7 +115,6 @@ def set_loader_small(args, eval = False, batch_size = None, img_size = 32):
 
     kwargs = {'num_workers': 4, 'pin_memory': True}
     if args.in_dataset == "CIFAR-10":
-        # Data loading code
         if eval: 
             dataset = datasets.CIFAR10(root, train=True, download=True, transform=transform_test)
             if args.subset: 
@@ -127,7 +129,6 @@ def set_loader_small(args, eval = False, batch_size = None, img_size = 32):
             datasets.CIFAR10(root, train=False, transform=transform_test),
             batch_size=args.batch_size, shuffle=False, **kwargs)
     elif args.in_dataset == "CIFAR-100":
-        # Data loading code
         if eval: 
             dataset = datasets.CIFAR100(root, train=True, download=True, transform=transform_test)
             if args.subset: 

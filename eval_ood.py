@@ -27,8 +27,8 @@ def process_args():
     parser.add_argument('--id_loc', default="datasets/CIFAR100", type=str, help='location of in-distribution dataset')
     parser.add_argument('--ood_loc', default="datasets/small_OOD_dataset", type=str, help='location of ood datasets')
 
-    parser.add_argument('--score', default='maha', type=str, help='score options: knn|maha|msp|odin|energy')
-    parser.add_argument('--K', default=100, type=int, help='K in KNN score')
+    parser.add_argument('--score', default='knn', type=str, help='score options: knn|maha')
+    parser.add_argument('--K', default=300, type=int, help='K in KNN score')
     parser.add_argument('--subset', default=False, type=bool, help='whether to use subset for KNN')
     parser.add_argument('--multiplier', default=1, type=float,
                      help='norm multipler to help solve numerical issues with precision matrix')
@@ -126,7 +126,7 @@ def get_mean_prec(args, net, train_loader):
             classwise_mean[cls] = torch.mean(all_features[classwise_idx[cls]].float(), dim = 0)
             
         cov = torch.cov(all_features.T.double()) 
-        precision = torch.linalg.inv(cov).float()
+        precision = torch.linalg.pinv(cov).float()
         print(f'cond number: {torch.linalg.cond(precision)}')
         torch.save(classwise_mean, mean_loc)
         torch.save(precision, prec_loc)
