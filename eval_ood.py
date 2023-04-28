@@ -27,7 +27,7 @@ def process_args():
     parser.add_argument('--id_loc', default="datasets/CIFAR100", type=str, help='location of in-distribution dataset')
     parser.add_argument('--ood_loc', default="datasets/small_OOD_dataset", type=str, help='location of ood datasets')
 
-    parser.add_argument('--score', default='knn', type=str, help='score options: knn|maha')
+    parser.add_argument('--score', default='maha', type=str, help='score options: knn|maha')
     parser.add_argument('--K', default=300, type=int, help='K in KNN score')
     parser.add_argument('--subset', default=False, type=bool, help='whether to use subset for KNN')
     parser.add_argument('--multiplier', default=1, type=float,
