@@ -18,7 +18,7 @@ Remarks: This is the initial version of our codebase, and while the scripts are 
 
 ### Update logs
 
-**Apr 28**: Updated protoype initialization with ID training set; changed default weight scale from 2.0 to 1.0 in train_cider_cifar100.sh for better performance. 
+**Apr 28**: Updated protoype initialization with ID training set (Thanks [zjysteven](https://github.com/zjysteven)); changed default weight scale from 2.0 to 1.0 in train_cider_cifar100.sh for better performance. 
 
 ### Data Preparation
 
