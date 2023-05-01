@@ -264,7 +264,6 @@ class DisLoss(nn.Module):
         self.prototypes = prototypes.detach()
         labels = torch.arange(0, num_cls).cuda()
         labels = labels.contiguous().view(-1, 1)
-        labels = labels.contiguous().view(-1, 1)
 
         mask = (1- torch.eq(labels, labels.T).float()).cuda()
 
