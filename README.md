@@ -155,4 +155,6 @@ If you find our work useful, please consider citing our paper:
 }
 ```
 
+### Further discussions
+For more in-depth discussions on the method and extensions, feel free to drop an email at ming5@wisc.edu :)
 
