@@ -15,8 +15,10 @@ def set_ood_loader_small(args, out_dataset, img_size = 32):
         set OOD loader for CIFAR scale datasets
     '''
     root = args.ood_loc
-    normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
-                                         std=[x/255.0 for x in [63.0, 62.1, 66.7]])
+#     normalize = transforms.Normalize(mean=[x/255.0 for x in [125.3, 123.0, 113.9]],
+#                                          std=[x/255.0 for x in [63.0, 62.1, 66.7]])
+    normalize = transforms.Normalize(mean=[0.491, 0.482, 0.447],
+                                    std=[0.247, 0.244, 0.262])
     if out_dataset == 'SVHN':
         testsetout = SVHN(root=os.path.join(root, 'svhn'), split='test',
                                 transform=transforms.Compose([transforms.Resize(img_size), 
