@@ -115,8 +115,7 @@ If the default directory to save checkpoints is not `checkpoints`, create a soft
 checkpoints/
 ---CIFAR-100/
 ------name_of_ckpt/
----------checkpoint_5.pth.tar
----------checkpoint_10.pth.tar
+---------checkpoint_500.pth.tar
 ```
 
 
