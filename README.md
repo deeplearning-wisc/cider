@@ -17,7 +17,7 @@ Out-of-distribution (OOD) detection is a critical task for reliable machine lear
 Remarks: We are actively working on improving the codebase for reproducibility and ease of use. Stay tuned for more updates :).
 
 ### Update logs
-**Aug 12**: For consistency with existing works on the [ImageNet-100](https://github.com/deeplearning-wisc/MCM/tree/main) subset, we report the finetuned accuracy for CIDER as follows (avg over 3 seeds):
+**Aug 12**: In alignment with prior works on the [ImageNet-100](https://github.com/deeplearning-wisc/MCM/tree/main) subset (the script for generating the subset is provided [here](https://github.com/deeplearning-wisc/MCM/blob/main/create_imagenet_subset.py)), we've also finetuned CIDER with the default hyperparameters (e.g., 10 epochs with ResNet-34) and report the performance below for reference. The results are avg over 3 seeds:
 
 | OOD         | FPR95          | AUROC          | AUPR           |
 |-------------|----------------|----------------|----------------|
@@ -28,7 +28,7 @@ Remarks: We are actively working on improving the codebase for reproducibility a
 | AVG         | 25.90 ± 1.47   | 94.46 ± 0.29   | 94.70 ± 0.22   |
 
 
-For reference, the checkpoint is available [here](https://drive.google.com/drive/folders/1IJXpHLllI9pj39xn25LSNRaVHZ9fFz6-?usp=sharing). 
+The checkpoint is available [here](https://drive.google.com/drive/folders/1IJXpHLllI9pj39xn25LSNRaVHZ9fFz6-?usp=sharing). 
 
 **Apr 28**: Updated prototype initialization with ID training set (Thanks [zjysteven](https://github.com/zjysteven)); changed default weight scale from 2.0 to 1.0 in train_cider_cifar100.sh for better performance. 
 
