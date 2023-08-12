@@ -14,11 +14,23 @@ Out-of-distribution (OOD) detection is a critical task for reliable machine lear
 
 ## Quick Start
 
-Remarks: This is the initial version of our codebase, and while the scripts are functional, there is still room for improvement (e.g. optimizing the pipelines for better efficiency). We are continuing improving the codebase for reproducibility and ease of use. Stay tuned for more updates :).
+Remarks: We are actively working on improving the codebase for reproducibility and ease of use. Stay tuned for more updates :).
 
 ### Update logs
+**Aug 12**: For consistency with existing works on the [ImageNet-100](https://github.com/deeplearning-wisc/MCM/tree/main) subset, we report the finetuned accuracy for CIDER as follows (avg over 3 seeds):
 
-**Apr 28**: Updated protoype initialization with ID training set (Thanks [zjysteven](https://github.com/zjysteven)); changed default weight scale from 2.0 to 1.0 in train_cider_cifar100.sh for better performance. 
+| OOD         | FPR95          | AUROC          | AUPR           |
+|-------------|----------------|----------------|----------------|
+| SUN         | 32.84 ± 1.86   | 92.24 ± 0.38   | 91.72 ± 0.28   |
+| places365   | 45.31 ± 1.74   | 90.10 ± 0.48   | 90.90 ± 0.42   |
+| dtd         | 10.03 ± 0.23   | 98.21 ± 0.02   | 98.37 ± 0.02   |
+| iNaturalist | 15.42 ± 2.38   | 97.28 ± 0.31   | 97.80 ± 0.22   |
+| AVG         | 25.90 ± 1.47   | 94.46 ± 0.29   | 94.70 ± 0.22   |
+
+
+For reference, the checkpoint is available [here](https://drive.google.com/drive/folders/1IJXpHLllI9pj39xn25LSNRaVHZ9fFz6-?usp=sharing). 
+
+**Apr 28**: Updated prototype initialization with ID training set (Thanks [zjysteven](https://github.com/zjysteven)); changed default weight scale from 2.0 to 1.0 in train_cider_cifar100.sh for better performance. 
 
 ### Data Preparation
 
@@ -42,7 +54,7 @@ wget https://www.dropbox.com/s/fhtsw1m3qxlwj6h/LSUN.tar.gz
 tar -xvzf LSUN.tar.gz
 ```
 
-The directory structure looks like:
+The directory structure looks like this:
 
 ```python
 datasets/
@@ -60,7 +72,7 @@ datasets/
 
 **Large-scale OOD datasets** For large-scale ID (e.g. ImageNet-100), we use the curated 4 OOD datasets from [iNaturalist](https://arxiv.org/pdf/1707.06642.pdf), [SUN](https://vision.princeton.edu/projects/2010/SUN/paper.pdf), [Places](http://places2.csail.mit.edu/PAMI_places.pdf), and [Textures](https://arxiv.org/pdf/1311.3618.pdf), and de-duplicated concepts overlapped with ImageNet-1k. The datasets are created by  [Huang et al., 2021](https://github.com/deeplearning-wisc/large_scale_ood) .
 
-The subsampled iNaturalist, SUN, and Places can be download via the following links:
+The subsampled iNaturalist, SUN, and Places can be downloaded via the following links:
 
 ```
 wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/iNaturalist.tar.gz
@@ -68,7 +80,7 @@ wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/SUN.tar.gz
 wget http://pages.cs.wisc.edu/~huangrui/imagenet_ood_dataset/Places.tar.gz
 
 ```
-The directory structure looks like:
+The directory structure looks like this:
 ```python
 datasets/
 ---ImageNet100/
