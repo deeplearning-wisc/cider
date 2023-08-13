@@ -17,7 +17,7 @@ Out-of-distribution (OOD) detection is a critical task for reliable machine lear
 Remarks: We are actively working on improving the codebase for reproducibility and ease of use. Stay tuned for more updates :).
 
 ### Update logs
-**Aug 12**: In alignment with prior works on the [ImageNet-100](https://github.com/deeplearning-wisc/MCM/tree/main) subset (the script for generating the subset is provided [here](https://github.com/deeplearning-wisc/MCM/blob/main/create_imagenet_subset.py)), we've also finetuned CIDER with the default hyperparameters (e.g., 10 epochs with ResNet-34) and report the performance below for reference. The results are avg over 3 seeds:
+**Aug 12**: In alignment with prior works on the [ImageNet-100](https://github.com/deeplearning-wisc/MCM/tree/main) subset (the script for generating the subset is provided [here](https://github.com/deeplearning-wisc/MCM/blob/main/create_imagenet_subset.py)), we've also finetuned CIDER with the default hyperparameters (e.g., 10 epochs with ResNet-34) and report the performance below for reference. The results are averaged over 3 seeds:
 
 | OOD         | FPR95          | AUROC          | AUPR           |
 |-------------|----------------|----------------|----------------|
